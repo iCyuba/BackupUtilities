@@ -1,0 +1,49 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "sources": {
+                "description": "Backup sources",
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 1
+            },
+            "targets": {
+                "description": "Backup targets",
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 1
+            },
+            "method": {
+                "description": "Backup method",
+                "enum": ["full", "differential", "incremental"]
+            },
+            "timing": {
+                "description": "Cron expression",
+                "type": "string"
+            },
+            "retention": {
+                "description": "How many backups to keep",
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "description": "How many backups to keep",
+                        "type": "integer"
+                    },
+                    "size": {
+                        "description": "How many incermentations to allow for each backup",
+                        "type": "integer"
+                    }
+                },
+                "required": ["count", "size"]
+            }
+        },
+        "required": ["sources", "targets", "method", "timing", "retention"]
+    }
+}

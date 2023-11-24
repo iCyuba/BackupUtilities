@@ -1,0 +1,16 @@
+{
+    // Editor settings
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+
+    // Config schema
+    "json.schemas": [
+        {
+            "fileMatch": ["/config/**/*.json"],
+            "url": "/src/config.schema.json"
+        }
+    ],
+
+    // Prettier (I use it for json.. ignore it ig)
+    "prettier.tabWidth": 4
+}
