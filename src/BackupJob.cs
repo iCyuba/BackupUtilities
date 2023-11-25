@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using NJsonSchema;
 
 namespace BackupUtility
@@ -17,19 +16,6 @@ namespace BackupUtility
         /// The config schema.
         /// </summary>
         private static readonly JsonSchema Schema = LoadConfigSchema();
-
-        /// <summary>
-        /// Serialization options for the config file.
-        /// </summary>
-        /// <remarks>
-        /// This is used to convert the JSON property names to camelCase.
-        /// </remarks>
-        public static readonly JsonSerializerOptions SerializerOptions =
-            new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
-            };
 
         // Subtypes
         public enum BackupMethod
@@ -103,7 +89,7 @@ namespace BackupUtility
                 throw new JsonException("Invalid config file: " + errors.First().ToString());
 
             // Parse JSON into Config object
-            return JsonSerializer.Deserialize<BackupJob[]>(json, SerializerOptions)!;
+            return JsonSerializer.Deserialize<BackupJob[]>(json, Json.SerializerOptions)!;
         }
 
         /// <summary>
