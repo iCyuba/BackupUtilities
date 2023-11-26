@@ -7,10 +7,7 @@ namespace BackupUtility
         // Properties
         public BackupJob Job { get; }
         public string Target { get; }
-        public List<ManifestPackage> Manifest { get; }
-
-        // Helpers
-        private string ManifestPath => Path.Combine(Target, "manifest.json");
+        public List<PackageManifest> Packages { get; }
 
         public Handler(BackupJob job, string target)
         {
@@ -18,15 +15,16 @@ namespace BackupUtility
             Target = target;
 
             // Load the manifest file
-            if (File.Exists(ManifestPath))
-                Manifest =
-                    JsonSerializer.Deserialize<List<ManifestPackage>>(
-                        File.ReadAllText(ManifestPath),
+            string path = Path.Combine(Target, "manifest.json");
+            if (File.Exists(path))
+                Packages =
+                    JsonSerializer.Deserialize<List<PackageManifest>>(
+                        File.ReadAllText(path),
                         Json.SerializerOptions
                     ) ?? new();
 
             // If the manifest file doesn't exist, create a new one
-            Manifest ??= new();
+            Packages ??= new();
         }
 
         public void Backup(Guid id)
@@ -34,47 +32,64 @@ namespace BackupUtility
             if (Job.Method != BackupJob.BackupMethod.Full)
                 throw new Exception("Only full backups are supported for now");
 
-            // Get the files for the backup
-            Dictionary<string, string> files = new();
+            // Get all the files for the backup (convert to hashset to remove duplicates)
+            HashSet<string> files = Job.Sources
+                .SelectMany(Files.GetAllFiles)
+                .Select(file => file.FullName)
+                .ToHashSet();
 
-            foreach (string source in Job.Sources)
-                Hashes.Get(source, files);
+            // Run the backup
+            FullBackup(id, files);
+        }
 
-            // Create a new backup
-            var backup = new ManifestBackup(id, DateTime.Now, Job.Method) { Files = files };
-            var package = new ManifestPackage(Job.Method, backup);
+        public void FullBackup(Guid id, HashSet<string> files)
+        {
+            // Create a new package + backup
+            var backup = new BackupManifest(DateTime.Now, Job.Method);
+            var package = new PackageManifest(Job.Method, id);
 
             // Add the package to the manifest
-            Manifest.Add(package);
+            Packages.Add(package);
 
-            // Save the manifest file
-            SaveManifest();
+            // Save the manifest files
+            SaveManifest(Target, Packages);
+            SaveManifest(Target, backup, id.ToString());
 
-            // Create the package directory
-            string packagePath = Path.Combine(Target, id.ToString());
-            Directory.CreateDirectory(packagePath);
+            // Get the path to the backup
+            string backupPath = Path.Combine(Target, id.ToString());
 
             // Copy the files to the target
             foreach (var file in files)
             {
-                string source = file.Key;
-                string target = Path.Combine(packagePath, file.Value + ".bin");
+                // Cut off the file root. On posix systems this is a slash, on windows it's a drive letter
+                // Note: since windows can have many different root directories, conflicts may occur! (e.g. C:\ and D:\)
+                string root =
+                    Path.GetPathRoot(file)
+                    ?? throw new Exception("File root is null, what system are you using?????");
 
-                // Copy the file
-                File.Copy(source, target);
+                string target = Path.Combine(backupPath, file[root.Length..]);
+                if (file.Contains(".vscode"))
+                {
+                    Console.WriteLine("vscode file", file, target);
+                }
+
+                // Make sure the directory exists
+                Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+
+                // Copy the file (overwrite will never be needed on posix systems, can't say the same for windows...)
+                File.Copy(file, target, true);
             }
         }
 
-        private void SaveManifest()
+        private static void SaveManifest<T>(string path, T manifest, string filename = "manifest")
         {
             // Create the directory if it doesn't exist
-            if (!Directory.Exists(Target))
-                Directory.CreateDirectory(Target);
+            Directory.CreateDirectory(path);
 
             // Serialize the manifest and save it
             File.WriteAllText(
-                ManifestPath,
-                JsonSerializer.Serialize(Manifest, Json.SerializerOptions)
+                Path.Combine(path, filename + ".json"),
+                JsonSerializer.Serialize(manifest, Json.SerializerOptions)
             );
         }
     }

@@ -1,28 +1,23 @@
 namespace BackupUtility
 {
-    public class ManifestPackage
+    public class PackageManifest : Manifest
     {
         /// <summary>
-        /// The method used for the backup
-        /// </summary>
-        public BackupJob.BackupMethod Method { get; set; }
-
-        /// <summary>
-        /// The full backup of the package.
+        /// The full backup id
         ///
         /// Will be used by as the base for the incremental / differential backups.
         /// Or as the only backup if the method is full.
         /// </summary>
-        public ManifestBackup Full { get; set; }
+        public Guid Full { get; set; }
 
         /// <summary>
-        /// A list of all the incremental / differential backups
+        /// A list of all incremental / differential backup ids
         /// </summary>
-        public List<ManifestBackup> Other { get; set; }
+        public List<Guid> Other { get; set; }
 
-        public ManifestPackage(BackupJob.BackupMethod method, ManifestBackup full)
+        public PackageManifest(BackupJob.BackupMethod method, Guid full)
+            : base(method)
         {
-            Method = method;
             Full = full;
             Other = new();
         }

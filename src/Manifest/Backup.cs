@@ -1,33 +1,23 @@
 namespace BackupUtility
 {
-    public class ManifestBackup
+    public class BackupManifest : Manifest
     {
-        /// <summary>
-        /// The id of the backup
-        /// </summary>
-        public Guid Id { get; set; }
-
         /// <summary>
         /// The date of the backup
         /// </summary>
         public DateTime Date { get; set; }
 
         /// <summary>
-        /// The used method for the backup, doesn't have to be the same as the one in the root manifest!
+        /// The files that were removed since the last backup
         /// </summary>
-        public BackupJob.BackupMethod Method { get; set; }
+        public List<string> Removed { get; set; }
 
-        /// <summary>
-        /// The files that were backed up and their hashes
-        /// </summary>
-        public Dictionary<string, string> Files { get; set; }
-
-        public ManifestBackup(Guid id, DateTime date, BackupJob.BackupMethod method)
+        public BackupManifest(DateTime date, BackupJob.BackupMethod method)
+            : base(method)
         {
-            Id = id;
             Date = date;
             Method = method;
-            Files = new();
+            Removed = new();
         }
     }
 }
