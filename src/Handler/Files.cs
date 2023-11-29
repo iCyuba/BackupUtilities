@@ -11,6 +11,9 @@ namespace BackupUtility
         /// <returns>An enumerable of all files in the directory</returns>
         public static IEnumerable<FileInfo> GetAllFiles(string path)
         {
+            // Normalize the path
+            path = NormalizePath(path);
+
             // Check if the path is a file
             if (File.Exists(path))
                 // Return a hashset with only that file
@@ -18,6 +21,24 @@ namespace BackupUtility
 
             // If it's a directory, return all files in the directory
             return new DirectoryInfo(path).EnumerateFiles("*", SearchOption.AllDirectories);
+        }
+
+        /// <summary>
+        /// Normalize a path
+        /// </summary>
+        /// <param name="path">The path to normalize</param>
+        /// <returns>The normalized path</returns>
+        public static string NormalizePath(string path)
+        {
+            // Handle `~` in the path
+            string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            if (path == "~")
+                return home;
+            else if (path.StartsWith("~/"))
+                return Path.Combine(home, path[2..]);
+
+            // Return the full path
+            return Path.GetFullPath(path);
         }
     }
 }

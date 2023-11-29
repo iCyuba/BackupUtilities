@@ -12,7 +12,9 @@ namespace BackupUtility
         public Handler(BackupJob job, string target)
         {
             Job = job;
-            Target = target;
+
+            // Normalize the target path
+            Target = Files.NormalizePath(target);
 
             // Load the manifest file
             string path = Path.Combine(Target, "manifest.json");
@@ -68,10 +70,6 @@ namespace BackupUtility
                     ?? throw new Exception("File root is null, what system are you using?????");
 
                 string target = Path.Combine(backupPath, file[root.Length..]);
-                if (file.Contains(".vscode"))
-                {
-                    Console.WriteLine("vscode file", file, target);
-                }
 
                 // Make sure the directory exists
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
