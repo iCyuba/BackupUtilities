@@ -5,13 +5,13 @@ namespace BackupUtility
         /// <summary>
         /// The full backup id
         ///
-        /// Will be used by as the base for the incremental / differential backups.
+        /// Will be used by as the base for the partial backups.
         /// Or as the only backup if the method is full.
         /// </summary>
         public Guid Full { get; set; }
 
         /// <summary>
-        /// A list of all incremental / differential backup ids
+        /// A list of all partial backup ids
         /// </summary>
         public List<Guid> Other { get; set; }
 

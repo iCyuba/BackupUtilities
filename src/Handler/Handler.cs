@@ -1,4 +1,4 @@
-using System.Text.Json;
+// This file is a mess
 
 namespace BackupUtility
 {
@@ -19,11 +19,7 @@ namespace BackupUtility
             // Load the manifest file
             string path = Path.Combine(Target, "manifest.json");
             if (File.Exists(path))
-                Packages =
-                    JsonSerializer.Deserialize<List<PackageManifest>>(
-                        File.ReadAllText(path),
-                        Json.SerializerOptions
-                    ) ?? new();
+                Packages = Json.Load<List<PackageManifest>>(path);
 
             // If the manifest file doesn't exist, create a new one
             Packages ??= new();
@@ -31,31 +27,44 @@ namespace BackupUtility
 
         public void Backup(Guid id)
         {
-            if (Job.Method != BackupJob.BackupMethod.Full)
-                throw new Exception("Only full backups are supported for now");
-
             // Get all the files for the backup (convert to hashset to remove duplicates)
             HashSet<string> files = Job.Sources
                 .SelectMany(Files.GetAllFiles)
                 .Select(file => file.FullName)
                 .ToHashSet();
 
-            // Run the backup
-            FullBackup(id, files);
+            // Get the package for the backup
+            PackageManifest? package = Packages.FirstOrDefault();
+
+            // Determine the appropriate backup method to use
+            bool full =
+                package == null
+                || package.Method != Job.Method
+                || package.Other.Count >= Job.Retention.Size;
+
+            switch (Job.Method)
+            {
+                case BackupJob.BackupMethod.Differential when !full:
+                case BackupJob.BackupMethod.Incremental when !full:
+                    PartialBackup(id, package!, files);
+                    break;
+                default:
+                    FullBackup(id, files);
+                    break;
+            }
         }
 
         public void FullBackup(Guid id, HashSet<string> files)
         {
             // Create a new package + backup
-            var backup = new BackupManifest(DateTime.Now, Job.Method);
+            var backup = new BackupManifest(DateTime.Now, BackupJob.BackupMethod.Full);
             var package = new PackageManifest(Job.Method, id);
 
             // Add the package to the manifest
             Packages.Add(package);
 
-            // Save the manifest files
-            SaveManifest(Target, Packages);
-            SaveManifest(Target, backup, id.ToString());
+            // Update the manifest file
+            Json.Save(Path.Combine(Target, "manifest.json"), Packages);
 
             // Get the path to the backup
             string backupPath = Path.Combine(Target, id.ToString());
@@ -63,32 +72,88 @@ namespace BackupUtility
             // Copy the files to the target
             foreach (var file in files)
             {
-                // Cut off the file root. On posix systems this is a slash, on windows it's a drive letter
-                // Note: since windows can have many different root directories, conflicts may occur! (e.g. C:\ and D:\)
-                string root =
-                    Path.GetPathRoot(file)
-                    ?? throw new Exception("File root is null, what system are you using?????");
-
-                string target = Path.Combine(backupPath, file[root.Length..]);
+                // Get the path relative to the root. This will ensure that file paths are unique (only on posix systems tho)
+                string relative = Path.GetRelativePath(Path.GetPathRoot(file)!, file);
+                string target = Path.Combine(backupPath, relative);
 
                 // Make sure the directory exists
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
 
                 // Copy the file (overwrite will never be needed on posix systems, can't say the same for windows...)
                 File.Copy(file, target, true);
+
+                // Hash the file so it can be compared later
+                backup.Files[relative] = Files.HashFile(target);
             }
+
+            // Save the backup manifest
+            Json.Save(Path.Combine(Target, $"{id}.json"), backup);
         }
 
-        private static void SaveManifest<T>(string path, T manifest, string filename = "manifest")
+        public void PartialBackup(Guid id, PackageManifest package, HashSet<string> files)
         {
-            // Create the directory if it doesn't exist
-            Directory.CreateDirectory(path);
+            // Get a list of the previous backups to use for the comparison
+            List<Guid> backups = new() { package.Full };
 
-            // Serialize the manifest and save it
-            File.WriteAllText(
-                Path.Combine(path, filename + ".json"),
-                JsonSerializer.Serialize(manifest, Json.SerializerOptions)
-            );
+            // If the backup method is incremental, add all the other backups to the list
+            if (Job.Method == BackupJob.BackupMethod.Incremental)
+                backups.AddRange(package.Other);
+
+            // Get the hashes of already backed up files
+            var hashes = backups
+                .Select(backup => Json.Load<BackupManifest>(Path.Combine(Target, $"{backup}.json")))
+                .SelectMany(backup => backup.Files)
+                .GroupBy(file => file.Key, file => file.Value)
+                .ToDictionary(file => file.Key, file => file.Last());
+
+            // Create a new backup and add it to the package
+            var backup = new BackupManifest(DateTime.Now, Job.Method);
+            package.Other.Add(id);
+
+            // Update the manifest file
+            Json.Save(Path.Combine(Target, "manifest.json"), Packages);
+
+            // Get the path to the backup
+            string backupPath = Path.Combine(Target, id.ToString());
+
+            // Copy the files to the target
+            foreach (var file in files)
+            {
+                // Get the path relative to the root. This will ensure that file paths are unique (only on posix systems tho)
+                string relative = Path.GetRelativePath(Path.GetPathRoot(file)!, file);
+
+                // Hash the file for the comparison
+                byte[] hash = Files.HashFile(file);
+
+                // Get the old hash and remove it from the manifest
+                // (just used for the comparison. not saved!)
+                byte[]? oldHash = hashes.GetValueOrDefault(relative, null);
+                hashes.Remove(relative);
+
+                // Check if the file has changed. If it hasn't, skip it
+                if (oldHash != null && oldHash!.SequenceEqual(hash))
+                    continue;
+
+                // Add the new hash to the manifest
+                backup.Files[relative] = hash;
+
+                // Get the target path
+                string target = Path.Combine(backupPath, relative);
+
+                // Make sure the directory exists
+                Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+
+                // Copy the modified file
+                File.Copy(file, target, true);
+            }
+
+            // Set the files that were removed to null (but don't do double nulls)
+            foreach (var file in hashes.Keys)
+                if (hashes[file] != null)
+                    backup.Files[file] = null;
+
+            // Save the backup manifest
+            Json.Save(Path.Combine(Target, $"{id}.json"), backup);
         }
     }
 }

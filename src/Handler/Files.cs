@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace BackupUtility
 {
     public static class Files
@@ -20,7 +22,11 @@ namespace BackupUtility
                 return new FileInfo[] { new(path) };
 
             // If it's a directory, return all files in the directory
-            return new DirectoryInfo(path).EnumerateFiles("*", SearchOption.AllDirectories);
+            if (Directory.Exists(path))
+                return new DirectoryInfo(path).EnumerateFiles("*", SearchOption.AllDirectories);
+
+            // If the path doesn't exist, return an empty enumerable
+            return Array.Empty<FileInfo>();
         }
 
         /// <summary>
@@ -40,5 +46,24 @@ namespace BackupUtility
             // Return the full path
             return Path.GetFullPath(path);
         }
+
+        /// <summary>
+        /// Hash a file
+        /// </summary>
+        /// <param name="file">The file to hash</param>
+        /// <returns>The hash of the file as a base64 string</returns>
+        public static byte[] HashFile(FileInfo file)
+        {
+            // Create a new hash algorithm
+            using var hash = SHA256.Create();
+
+            // Open the file
+            using var stream = file.OpenRead();
+
+            // Compute the hash
+            return hash.ComputeHash(stream);
+        }
+
+        public static byte[] HashFile(string path) => HashFile(new FileInfo(path));
     }
 }

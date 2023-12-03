@@ -8,16 +8,15 @@ namespace BackupUtility
         public DateTime Date { get; set; }
 
         /// <summary>
-        /// The files that were removed since the last backup
+        /// The file hashes. Null if the file was deleted
         /// </summary>
-        public List<string> Removed { get; set; }
+        public Dictionary<string, byte[]?> Files { get; set; } = new();
 
         public BackupManifest(DateTime date, BackupJob.BackupMethod method)
             : base(method)
         {
             Date = date;
             Method = method;
-            Removed = new();
         }
     }
 }
