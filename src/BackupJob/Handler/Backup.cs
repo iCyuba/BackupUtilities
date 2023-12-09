@@ -57,6 +57,32 @@ namespace BackupUtility
                     break;
             }
 
+            // Clean up old backups
+            if (Retention.Size > 0 && packages.Count > Retention.Size)
+            {
+                // Get the packages and backups to remove
+                var packagesToRemove = packages.Take(packages.Count - Retention.Size);
+                var backupsToRemove = packagesToRemove
+                    .SelectMany(package => new[] { package.Full }.Concat(package.Other))
+                    .ToHashSet();
+
+                // Remove the packages
+                packages.RemoveRange(0, packagesToRemove.Count());
+
+                // Remove the backups
+                foreach (var backupId in backupsToRemove)
+                {
+                    // Remove the directories themselves (if they exist, they don't always have to...)
+                    string backupPath = Path.Combine(target, backupId.ToString());
+                    if (Directory.Exists(backupPath))
+                        Directory.Delete(backupPath, true);
+
+                    // Remove the manifest file (this one should always exist)
+                    string manifestPath = Path.Combine(target, backupId.ToString() + ".json");
+                    File.Delete(manifestPath);
+                }
+            }
+
             // Save the manifest files
             JsonUtils.Save(Path.Combine(target, "manifest.json"), packages);
             JsonUtils.Save(Path.Combine(target, $"{id}.json"), backup);
