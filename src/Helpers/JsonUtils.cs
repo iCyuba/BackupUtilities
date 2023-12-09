@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace BackupUtility
 {
-    public static class Json
+    public static class JsonUtils
     {
         /// <summary>
         /// Default serializer options

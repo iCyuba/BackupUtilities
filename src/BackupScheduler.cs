@@ -20,18 +20,8 @@ namespace BackupUtility
                 // Get the job from the data map
                 var job = (BackupJob)context.MergedJobDataMap["job"];
 
-                // Make up a backup id
-                var id = Guid.NewGuid();
-
-                // Backup to each target
-                foreach (string target in job.Targets)
-                {
-                    // Create a new backup handler
-                    var handler = new Handler(job, target);
-
-                    // Backup to the target
-                    handler.Backup(id);
-                }
+                // Run the backup...
+                job.Backup();
 
                 return Task.CompletedTask;
             }
