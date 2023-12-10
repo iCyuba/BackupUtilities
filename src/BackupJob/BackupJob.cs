@@ -5,7 +5,8 @@ namespace BackupUtility
         List<string> targets,
         BackupJob.BackupMethod method,
         string timing,
-        BackupJob.BackupRetention retention
+        BackupJob.BackupRetention retention,
+        BackupJob.BackupOutputType outputType = BackupJob.BackupOutputType.Folder
     )
     {
         /// <summary>
@@ -32,5 +33,10 @@ namespace BackupUtility
         /// The retention policy to use.
         /// </summary>
         public BackupRetention Retention { get; set; } = retention;
+
+        /// <summary>
+        /// Output type. Defaults to folder.
+        /// </summary>
+        public BackupOutputType OutputType { get; set; } = outputType;
     }
 }

@@ -3,8 +3,8 @@ namespace BackupUtility
     public partial class BackupJob
     {
         private BackupManifest PartialBackup(
+            IBackupOutput output,
             string target,
-            Guid id,
             PackageManifest package,
             HashSet<string> files
         )
@@ -26,15 +26,11 @@ namespace BackupUtility
             // Create a new backup and add it to the package
             var backup = new BackupManifest(DateTime.Now, Method);
 
-            // Get the path to the backup
-            string backupPath = Path.Combine(target, id.ToString());
-
             // Copy the files to the target
             foreach (var file in files)
             {
                 // Get the path relative to the root. This will ensure that file paths are unique (only on posix systems tho)
                 string relative = Path.GetRelativePath(Path.GetPathRoot(file)!, file);
-                string fileTarget = Path.Combine(backupPath, relative);
 
                 // Get the old hash and remove it from the old hashes
                 byte[]? oldHash = hashes.GetValueOrDefault(relative, null);
@@ -51,11 +47,8 @@ namespace BackupUtility
                 // Add the new hash to the manifest
                 backup.Files[relative] = hash;
 
-                // Make sure the directory exists
-                Directory.CreateDirectory(Path.GetDirectoryName(fileTarget)!);
-
-                // Copy the modified file
-                info.CopyTo(fileTarget, true);
+                // Add the file to the backup
+                output.Add(info, relative);
             }
 
             // Set the files that were removed to null (but don't do double nulls)

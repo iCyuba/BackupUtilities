@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="NJsonSchema" Version="11.0.0-preview006" />
     <PackageReference Include="Quartz" Version="3.8.0" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <EmbeddedResource Include="src/schemas/config.json" />
   </ItemGroup>
 

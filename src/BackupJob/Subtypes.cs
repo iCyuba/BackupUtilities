@@ -20,5 +20,14 @@ namespace BackupUtility
             public int Count { get; set; }
             public int Size { get; set; }
         }
+
+        /// <summary>
+        /// Output type
+        /// </summary>
+        public enum BackupOutputType
+        {
+            Folder,
+            Tar
+        }
     }
 }

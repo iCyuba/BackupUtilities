@@ -42,6 +42,11 @@
                     }
                 },
                 "required": ["count", "size"]
+            },
+            "outputType": {
+                "description": "Type of the backup output",
+                "enum": ["folder", "tar"],
+                "default": "folder"
             }
         },
         "required": ["sources", "targets", "method", "timing", "retention"]
