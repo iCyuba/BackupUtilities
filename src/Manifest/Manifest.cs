@@ -1,15 +1,10 @@
 namespace BackupUtility
 {
-    public abstract class Manifest
+    public abstract class Manifest(BackupJob.BackupMethod method)
     {
         /// <summary>
         /// The method used for the backup
         /// </summary>
-        public BackupJob.BackupMethod Method { get; set; }
-
-        public Manifest(BackupJob.BackupMethod method)
-        {
-            Method = method;
-        }
+        public BackupJob.BackupMethod Method { get; set; } = method;
     }
 }

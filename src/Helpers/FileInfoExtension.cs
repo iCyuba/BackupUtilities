@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 
 namespace BackupUtility
 {
-    public static class FileInfoExtensions
+    public static class FileInfoExtension
     {
         /// <summary>
         /// Hash the file contents using SHA256

@@ -10,7 +10,7 @@ namespace BackupUtility
         )
         {
             // Get a list of the previous backups to use for the comparison
-            List<Guid> backups = new() { package.Full };
+            List<Guid> backups = [package.Full];
 
             // If the backup method is incremental, add all the other backups to the list
             if (Method == BackupMethod.Incremental)

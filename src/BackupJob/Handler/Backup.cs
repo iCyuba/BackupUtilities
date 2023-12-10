@@ -1,5 +1,3 @@
-// This file is a mess
-
 namespace BackupUtility
 {
     public partial class BackupJob
@@ -31,7 +29,7 @@ namespace BackupUtility
                 packages = JsonUtils.Load<List<PackageManifest>>(packagesPath);
 
             // If the manifest file doesn't exist, create a new one
-            packages ??= new();
+            packages ??= [];
 
             // Get the package for the backup
             var package = packages.LastOrDefault();
@@ -78,8 +76,7 @@ namespace BackupUtility
                         Directory.Delete(backupPath, true);
 
                     // Remove the manifest file (this one should always exist)
-                    string manifestPath = Path.Combine(target, backupId.ToString() + ".json");
-                    File.Delete(manifestPath);
+                    File.Delete(Path.Combine(target, $"{backupId}.json"));
                 }
             }
 
