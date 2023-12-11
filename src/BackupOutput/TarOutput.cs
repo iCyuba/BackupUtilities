@@ -10,10 +10,10 @@ namespace BackupUtility
     {
         private readonly TarOutputStream OutputStream = new(outputStream, null);
 
-        public void Add(FileInfo file, string path)
+        public void Add(FileInfo file)
         {
-            // Create a new tar entry
-            TarEntry entry = TarEntry.CreateTarEntry(path);
+            // Create a new tar entry from the path relative to the root
+            TarEntry entry = TarEntry.CreateTarEntry(PathUtils.GetRelativePath(file));
 
             // Set the size of the entry
             entry.Size = file.Length;

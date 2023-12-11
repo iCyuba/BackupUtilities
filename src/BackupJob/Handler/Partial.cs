@@ -6,7 +6,7 @@ namespace BackupUtility
             IBackupOutput output,
             string target,
             PackageManifest package,
-            HashSet<string> files
+            IEnumerable<FileInfo> files
         )
         {
             // Get a list of the previous backups to use for the comparison
@@ -30,15 +30,14 @@ namespace BackupUtility
             foreach (var file in files)
             {
                 // Get the path relative to the root. This will ensure that file paths are unique (only on posix systems tho)
-                string relative = Path.GetRelativePath(Path.GetPathRoot(file)!, file);
+                string relative = PathUtils.GetRelativePath(file);
 
                 // Get the old hash and remove it from the old hashes
                 byte[]? oldHash = hashes.GetValueOrDefault(relative, null);
                 hashes.Remove(relative);
 
-                // Get the file info and hash
-                FileInfo info = new(file);
-                var hash = info.GetHash();
+                // Get the hash
+                var hash = file.GetHash();
 
                 // Check if the file has changed. If it hasn't, skip it
                 if (oldHash != null && oldHash!.SequenceEqual(hash))
@@ -48,7 +47,7 @@ namespace BackupUtility
                 backup.Files[relative] = hash;
 
                 // Add the file to the backup
-                output.Add(info, relative);
+                output.Add(file);
             }
 
             // Set the files that were removed to null (but don't do double nulls)

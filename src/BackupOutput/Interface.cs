@@ -9,8 +9,7 @@ namespace BackupUtility
         /// Add a file to the backup
         /// </summary>
         /// <param name="file">The file to add</param>
-        /// <param name="path">The path to the file. Should be the relative path from the root of the backup</param>
-        public void Add(FileInfo file, string path);
+        public void Add(FileInfo file);
 
         /// <summary>
         /// Get the appropriate backup output for the given target

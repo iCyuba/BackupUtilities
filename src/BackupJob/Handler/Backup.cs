@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace BackupUtility
 {
     public partial class BackupJob
@@ -15,11 +17,8 @@ namespace BackupUtility
             // Generate a new id for the backup if none was provided
             id = id == default ? Guid.NewGuid() : id;
 
-            // Get all the files for the backup (convert to hashset to remove duplicates)
-            HashSet<string> files = Sources
-                .SelectMany(PathUtils.GetAllFiles)
-                .Select(file => file.FullName)
-                .ToHashSet();
+            // Get all the files for the backup
+            var files = PathUtils.GetAllFiles(Sources);
 
             // Load the manifest file
             List<PackageManifest>? packages = null;
@@ -81,13 +80,10 @@ namespace BackupUtility
                     if (Directory.Exists(backupPath))
                         Directory.Delete(backupPath, true);
 
-                    // If the output is a tar file, remove it
-                    string tarPath = Path.Combine(target, $"{backupId}.tar");
-                    if (File.Exists(tarPath))
-                        File.Delete(tarPath);
-
-                    // Remove the manifest file (this one should always exist)
-                    File.Delete(Path.Combine(target, $"{backupId}.json"));
+                    // Remove files that match the id
+                    foreach (var file in Directory.EnumerateFiles(target))
+                        if (Path.GetFileName(file).StartsWith(backupId.ToString()))
+                            File.Delete(file);
                 }
             }
 

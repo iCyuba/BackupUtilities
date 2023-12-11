@@ -10,11 +10,15 @@ namespace BackupUtility
     {
         private readonly ZipOutputStream OutputStream = new(outputStream);
 
-        public void Add(FileInfo file, string path)
+        public void Add(FileInfo file)
         {
             // Create a new zip entry
             ZipEntry entry =
-                new(ZipEntry.CleanName(path)) { DateTime = file.LastWriteTime, Size = file.Length };
+                new(ZipEntry.CleanName(PathUtils.GetRelativePath(file)))
+                {
+                    DateTime = file.LastWriteTime,
+                    Size = file.Length
+                };
 
             // Write the entry to the tar archive
             OutputStream.PutNextEntry(entry);

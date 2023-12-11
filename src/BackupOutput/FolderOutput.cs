@@ -9,10 +9,10 @@ namespace BackupUtility
     {
         private string OutputPath { get; } = Path.Combine(target, id.ToString());
 
-        public void Add(FileInfo file, string path)
+        public void Add(FileInfo file)
         {
             // Copy the file to the output path
-            string newPath = Path.Combine(OutputPath, path);
+            string newPath = Path.Combine(OutputPath, PathUtils.GetRelativePath(file));
 
             // Make sure the directory exists
             Directory.CreateDirectory(Path.GetDirectoryName(newPath)!);
@@ -21,7 +21,7 @@ namespace BackupUtility
             file.CopyTo(newPath, true);
         }
 
-        // Nothing to do here. I just need compatibility with the tar output
+        // Nothing to do here. I just need compatibility with the tar and zip output which need to be disposed of
         public void Dispose() { }
     }
 }

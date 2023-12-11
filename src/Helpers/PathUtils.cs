@@ -28,6 +28,19 @@ namespace BackupUtility
         }
 
         /// <summary>
+        /// Get all files in multiple directories.
+        ///
+        /// Overlapping files will be deduplicated.
+        /// </summary>
+        /// <param name="paths">The directories to get the files from</param>
+        /// <returns>An enumerable of all files in the directories</returns>
+        public static IEnumerable<FileInfo> GetAllFiles(IEnumerable<string> paths)
+        {
+            // Get all files from each path, flatten the result and deduplicate the files
+            return paths.SelectMany(GetAllFiles).DistinctBy((file) => file.FullName);
+        }
+
+        /// <summary>
         /// Normalize a path
         /// </summary>
         /// <param name="path">The path to normalize</param>
@@ -44,5 +57,21 @@ namespace BackupUtility
             // Return the full path
             return Path.GetFullPath(path);
         }
+
+        /// <summary>
+        /// Get a path relative to the root of the filesystem
+        /// </summary>
+        /// <param name="path">The path to get the relative path for</param>
+        /// <returns>The relative path</returns>
+        public static string GetRelativePath(string path)
+        {
+            // Get the root of the filesystem
+            string root = Path.GetPathRoot(path)!;
+
+            // Get the relative path
+            return Path.GetRelativePath(root, path);
+        }
+
+        public static string GetRelativePath(FileSystemInfo file) => GetRelativePath(file.FullName);
     }
 }
