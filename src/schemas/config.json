@@ -43,9 +43,9 @@
                 },
                 "required": ["count", "size"]
             },
-            "outputType": {
+            "output": {
                 "description": "Type of the backup output",
-                "enum": ["folder", "tar"],
+                "enum": ["folder", "tar", "tarGz", "tarBz2"],
                 "default": "folder"
             }
         },

@@ -41,13 +41,7 @@ namespace BackupUtility
             Directory.CreateDirectory(target);
 
             // Get the output for the backup
-            IBackupOutput output = OutputType switch
-            {
-                BackupOutputType.Folder => new FolderOutput(target, id),
-                BackupOutputType.Tar
-                    => new TarOutput(File.Create(Path.Combine(target, $"{id}.tar"))),
-                _ => throw new InvalidOperationException("Invalid backup output type")
-            };
+            using var output = IBackupOutput.GetOutput(Output, target, id);
 
             BackupManifest backup;
             switch (Method)
@@ -66,10 +60,6 @@ namespace BackupUtility
                     packages.Add(new(Method, id));
                     break;
             }
-
-            // Dispose of the output (this will close the file if it's a tar output)
-            // (can't use "using" cuz it's in the switch)
-            output.Dispose();
 
             // Clean up old backups
             if (Retention.Size > 0 && packages.Count > Retention.Size)

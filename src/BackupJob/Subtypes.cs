@@ -24,10 +24,12 @@ namespace BackupUtility
         /// <summary>
         /// Output type
         /// </summary>
-        public enum BackupOutputType
+        public enum BackupOutput
         {
             Folder,
-            Tar
+            Tar,
+            TarGz,
+            TarBz2,
         }
     }
 }
