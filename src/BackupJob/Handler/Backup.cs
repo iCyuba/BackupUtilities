@@ -18,7 +18,10 @@ namespace BackupUtility
             id = id == default ? Guid.NewGuid() : id;
 
             // Get all the files for the backup
-            var files = PathUtils.GetAllFiles(Sources);
+            var files = PathUtils
+                .GetAllFiles(Sources)
+                // Filter out files that match the ignore patterns
+                .Where(file => !Ignore.Any(pattern => Regex.IsMatch(file.FullName, pattern)));
 
             // Load the manifest file
             List<PackageManifest>? packages = null;

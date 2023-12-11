@@ -12,6 +12,13 @@
                 },
                 "minItems": 1
             },
+            "ignore": {
+                "description": "Backup ignore patterns. Any full path matching any of these regexes will not be backed up",
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
             "targets": {
                 "description": "Backup targets",
                 "type": "array",

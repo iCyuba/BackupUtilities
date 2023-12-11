@@ -6,6 +6,7 @@ namespace BackupUtility
         BackupJob.BackupMethod method,
         string timing,
         BackupJob.BackupRetention retention,
+        List<string>? ignore = default,
         BackupJob.BackupOutput output = BackupJob.BackupOutput.Folder
     )
     {
@@ -13,6 +14,11 @@ namespace BackupUtility
         /// The sources to backup.
         /// </summary>
         public List<string> Sources { get; set; } = sources;
+
+        /// <summary>
+        /// Ignored patterns.
+        /// </summary>
+        public List<string> Ignore { get; set; } = ignore ?? [];
 
         /// <summary>
         /// The targets to backup to.
