@@ -1,22 +1,20 @@
-using ICSharpCode.SharpZipLib.Tar;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace BackupUtility
 {
     /// <summary>
-    /// A backup output, which writes to a tar archive
+    /// A backup output, which writes to a zip file
     /// </summary>
-    /// <param name="outputStream">The stream to write the tar archive to</param>
-    class TarOutput(Stream outputStream) : IBackupOutput, IDisposable
+    /// <param name="outputStream">The stream to write the zip file to</param>
+    class ZipOutput(Stream outputStream) : IBackupOutput, IDisposable
     {
-        private readonly TarOutputStream OutputStream = new(outputStream, null);
+        private readonly ZipOutputStream OutputStream = new(outputStream);
 
         public void Add(FileInfo file, string path)
         {
-            // Create a new tar entry
-            TarEntry entry = TarEntry.CreateTarEntry(path);
-
-            // Set the size of the entry
-            entry.Size = file.Length;
+            // Create a new zip entry
+            ZipEntry entry =
+                new(ZipEntry.CleanName(path)) { DateTime = file.LastWriteTime, Size = file.Length };
 
             // Write the entry to the tar archive
             OutputStream.PutNextEntry(entry);

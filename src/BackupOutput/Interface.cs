@@ -22,15 +22,22 @@ namespace BackupUtility
             if (type == BackupJob.BackupOutput.Folder)
                 return new FolderOutput(target, id);
 
+            // Get the appropriate file extension
             string extension = type switch
             {
                 BackupJob.BackupOutput.Tar => "tar",
                 BackupJob.BackupOutput.TarGz => "tar.gz",
                 BackupJob.BackupOutput.TarBz2 => "tar.bz2",
+                BackupJob.BackupOutput.Zip => "zip",
+
                 _ => throw new InvalidOperationException("Invalid backup output type"),
             };
 
+            // Create the file
             Stream file = File.Create(Path.Combine(target, $"{id}.{extension}"));
+
+            if (type == BackupJob.BackupOutput.Zip)
+                return new ZipOutput(file);
 
             return new TarOutput(
                 type switch

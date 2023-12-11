@@ -30,6 +30,7 @@ namespace BackupUtility
             Tar,
             TarGz,
             TarBz2,
+            Zip
         }
     }
 }
