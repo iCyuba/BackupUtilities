@@ -1,17 +1,16 @@
-namespace BackupUtility
+namespace BackupUtility;
+
+internal class Program
 {
-    internal class Program
+    static async Task Main()
     {
-        static async Task Main()
-        {
-            // Load the backup jobs from the default config file
-            var jobs = BackupJob.LoadFromConfig();
+        // Load the backup jobs from the default config file
+        var jobs = BackupJob.LoadFromConfig();
 
-            // Setup the backup scheduler
-            await BackupScheduler.Setup(jobs);
+        // Setup the backup scheduler
+        await BackupScheduler.Setup(jobs);
 
-            // Wait forever
-            await Task.Delay(-1);
-        }
+        // Wait forever
+        await Task.Delay(-1);
     }
 }
