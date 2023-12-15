@@ -22,15 +22,7 @@ public interface IOutput : IDisposable
             return new FolderOutput(target, id);
 
         // Get the appropriate file extension
-        string extension = type switch
-        {
-            BackupJob.BackupOutput.Tar => "tar",
-            BackupJob.BackupOutput.TarGz => "tar.gz",
-            BackupJob.BackupOutput.TarBz2 => "tar.bz2",
-            BackupJob.BackupOutput.Zip => "zip",
-
-            _ => throw new InvalidOperationException("Invalid backup output type"),
-        };
+        string extension = type.GetDescription().ToLowerInvariant();
 
         // Create the file
         Stream file = File.Create(Path.Combine(target, $"{id}.{extension}"));
@@ -45,8 +37,8 @@ public interface IOutput : IDisposable
                 BackupJob.BackupOutput.TarGz => new GZipOutputStream(file),
                 BackupJob.BackupOutput.TarBz2 => new BZip2OutputStream(file),
 
-                // Will never happen cuz this gets caught above. But the compiler doesn't know that ig
-                _ => throw new Exception()
+                // Should never happen, but yk...
+                _ => throw new ArgumentException("Invalid backup output type"),
             }
         );
     }

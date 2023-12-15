@@ -52,7 +52,7 @@
             },
             "output": {
                 "description": "Type of the backup output",
-                "enum": ["folder", "tar", "tarGz", "tarBz2", "zip"],
+                "enum": ["folder", "tar", "tar.gz", "tar.bz2", "zip"],
                 "default": "folder"
             }
         },

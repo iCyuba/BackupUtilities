@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace BackupUtility;
 
 public partial class BackupJob(
@@ -43,5 +45,6 @@ public partial class BackupJob(
     /// <summary>
     /// Output type. Defaults to folder.
     /// </summary>
+    [JsonConverter(typeof(OutputJsonConverter))]
     public BackupOutput Output { get; set; } = output;
 }

@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace BackupUtility;
 
 public partial class BackupJob
@@ -28,7 +30,11 @@ public partial class BackupJob
     {
         Folder,
         Tar,
+
+        [Description("tar.gz")]
         TarGz,
+
+        [Description("tar.bz2")]
         TarBz2,
         Zip
     }
