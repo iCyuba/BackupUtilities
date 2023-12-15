@@ -10,14 +10,22 @@ public partial class BackupJob
         // Copy the files to the target
         foreach (var file in files)
         {
-            // Get the path relative to the root. This will ensure that file paths are unique (only on posix systems tho)
-            string relative = PathUtils.GetRelativePath(file);
+            try
+            {
+                // Get the path relative to the root. This will ensure that file paths are unique (only on posix systems tho)
+                string relative = PathUtils.GetRelativePath(file);
 
-            // Add the file to the backup
-            output.Add(file);
+                // Add the file to the backup
+                output.Add(file);
 
-            // Hash the file so it can be compared later
-            backup.Files[relative] = file.GetHash();
+                // Hash the file so it can be compared later
+                backup.Files[relative] = file.GetHash();
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"Failed to backup file {file.FullName}: {e.Message}");
+                Console.Error.WriteLine(e.StackTrace);
+            }
         }
 
         // Return the backup manifest

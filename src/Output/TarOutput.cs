@@ -12,6 +12,10 @@ class TarOutput(Stream outputStream) : IOutput, IDisposable
 
     public void Add(FileInfo file)
     {
+        // Skip the file, if it is a symbolic link (don't know how to handle them... sorry)
+        if (file.LinkTarget != null)
+            return;
+
         // Create a new tar entry from the path relative to the root
         TarEntry entry = TarEntry.CreateTarEntry(PathUtils.GetRelativePath(file));
 

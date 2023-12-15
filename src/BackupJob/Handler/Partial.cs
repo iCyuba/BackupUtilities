@@ -29,25 +29,33 @@ public partial class BackupJob
         // Copy the files to the target
         foreach (var file in files)
         {
-            // Get the path relative to the root. This will ensure that file paths are unique (only on posix systems tho)
-            string relative = PathUtils.GetRelativePath(file);
+            try
+            {
+                // Get the path relative to the root. This will ensure that file paths are unique (only on posix systems tho)
+                string relative = PathUtils.GetRelativePath(file);
 
-            // Get the old hash and remove it from the old hashes
-            byte[]? oldHash = hashes.GetValueOrDefault(relative, null);
-            hashes.Remove(relative);
+                // Get the old hash and remove it from the old hashes
+                byte[]? oldHash = hashes.GetValueOrDefault(relative, null);
+                hashes.Remove(relative);
 
-            // Get the hash
-            var hash = file.GetHash();
+                // Get the hash
+                var hash = file.GetHash();
 
-            // Check if the file has changed. If it hasn't, skip it
-            if (oldHash != null && oldHash!.SequenceEqual(hash))
-                continue;
+                // Check if the file has changed. If it hasn't, skip it
+                if (oldHash != null && oldHash!.SequenceEqual(hash))
+                    continue;
 
-            // Add the new hash to the manifest
-            backup.Files[relative] = hash;
+                // Add the new hash to the manifest
+                backup.Files[relative] = hash;
 
-            // Add the file to the backup
-            output.Add(file);
+                // Add the file to the backup
+                output.Add(file);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"Failed to backup file {file.FullName}: {e.Message}");
+                Console.Error.WriteLine(e.StackTrace);
+            }
         }
 
         // Set the files that were removed to null (but don't do double nulls)
