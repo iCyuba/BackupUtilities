@@ -12,11 +12,11 @@ public partial class BackupJob
     private void Cleaup(List<PackageManifest> packages, string target)
     {
         // Don't do anything if the retention policy is disabled or the packages aren't over the limit
-        if (Retention.Size <= 0 || packages.Count <= Retention.Size)
+        if (Retention.Count <= 0 || packages.Count <= Retention.Count)
             return;
 
         // Get the packages and backups to remove
-        var packagesToRemove = packages.Take(packages.Count - Retention.Size);
+        var packagesToRemove = packages.Take(packages.Count - Retention.Count);
         var backupsToRemove = packagesToRemove
             .SelectMany(package => new[] { package.Full }.Concat(package.Other))
             .ToHashSet();

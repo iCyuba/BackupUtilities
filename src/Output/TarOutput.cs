@@ -17,7 +17,8 @@ class TarOutput(Stream outputStream) : IOutput, IDisposable
             return;
 
         // Create a new tar entry from the path relative to the root
-        TarEntry entry = TarEntry.CreateTarEntry(PathUtils.GetRelativePath(file));
+        string path = PathUtils.GetRelativePath(file).Replace('\\', '/');
+        TarEntry entry = TarEntry.CreateTarEntry(path);
 
         // Set the size of the entry
         entry.Size = file.Length;
