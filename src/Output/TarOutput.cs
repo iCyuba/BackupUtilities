@@ -8,7 +8,7 @@ namespace BackupUtility;
 /// <param name="outputStream">The stream to write the tar archive to</param>
 class TarOutput(Stream outputStream) : IOutput, IDisposable
 {
-    private readonly TarOutputStream OutputStream = new(outputStream, null);
+    private readonly TarOutputStream _outputStream = new(outputStream, null);
 
     public void Add(FileInfo file)
     {
@@ -23,21 +23,21 @@ class TarOutput(Stream outputStream) : IOutput, IDisposable
         entry.Size = file.Length;
 
         // Write the entry to the tar archive
-        OutputStream.PutNextEntry(entry);
+        _outputStream.PutNextEntry(entry);
 
         // Open the file
         using var stream = file.OpenRead();
 
         // Copy the file to the tar archive
-        stream.CopyTo(OutputStream);
+        stream.CopyTo(_outputStream);
 
         // Close the entry
-        OutputStream.CloseEntry();
+        _outputStream.CloseEntry();
     }
 
     public void Dispose()
     {
         // Close the tar archive
-        OutputStream.Close();
+        _outputStream.Close();
     }
 }

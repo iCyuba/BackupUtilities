@@ -7,12 +7,12 @@ namespace BackupUtility;
 /// <param name="id">The id of the backup</param>
 class FolderOutput(string target, Guid id) : IOutput
 {
-    private string OutputPath { get; } = Path.Combine(target, id.ToString());
+    private readonly string _outputPath = Path.Combine(target, id.ToString());
 
     public void Add(FileInfo file)
     {
         // Copy the file to the output path
-        string newPath = Path.Combine(OutputPath, PathUtils.GetRelativePath(file));
+        string newPath = Path.Combine(_outputPath, PathUtils.GetRelativePath(file));
 
         // Make sure the directory exists
         Directory.CreateDirectory(Path.GetDirectoryName(newPath)!);

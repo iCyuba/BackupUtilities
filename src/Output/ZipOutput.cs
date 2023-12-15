@@ -8,7 +8,7 @@ namespace BackupUtility;
 /// <param name="outputStream">The stream to write the zip file to</param>
 class ZipOutput(Stream outputStream) : IOutput, IDisposable
 {
-    private readonly ZipOutputStream OutputStream = new(outputStream);
+    private readonly ZipOutputStream _outputStream = new(outputStream);
 
     public void Add(FileInfo file)
     {
@@ -25,21 +25,21 @@ class ZipOutput(Stream outputStream) : IOutput, IDisposable
             };
 
         // Write the entry to the tar archive
-        OutputStream.PutNextEntry(entry);
+        _outputStream.PutNextEntry(entry);
 
         // Open the file
         using var stream = file.OpenRead();
 
         // Copy the file to the tar archive
-        stream.CopyTo(OutputStream);
+        stream.CopyTo(_outputStream);
 
         // Close the entry
-        OutputStream.CloseEntry();
+        _outputStream.CloseEntry();
     }
 
     public void Dispose()
     {
         // Close the tar archive
-        OutputStream.Close();
+        _outputStream.Close();
     }
 }
