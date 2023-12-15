@@ -16,6 +16,7 @@ public interface IOutput : IDisposable
     /// </summary>
     /// <param name="type">The type of backup output to use</param>
     /// <param name="target">The target path</param>
+    /// <param name="id">The id of the backup</param>
     public static IOutput GetOutput(BackupJob.BackupOutput type, string target, Guid id)
     {
         if (type == BackupJob.BackupOutput.Folder)

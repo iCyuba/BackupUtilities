@@ -6,7 +6,6 @@ namespace BackupUtility;
 public partial class BackupJob
 {
     private const string CONFIG_SCHEMA = "BackupUtility.src.schemas.config.json";
-    private const string CONFIG_FILE = "config/config.json";
 
     /// <summary>
     /// The config schema.
@@ -19,7 +18,7 @@ public partial class BackupJob
     /// <param name="file">The path to the config file.</param>
     /// <returns>An array of BackupJob objects.</returns>
     /// <exception cref="JsonException" />
-    public static BackupJob[] LoadFromConfig(string file = CONFIG_FILE)
+    public static BackupJob[] LoadFromConfig(string file)
     {
         var json = File.ReadAllText(file);
 
