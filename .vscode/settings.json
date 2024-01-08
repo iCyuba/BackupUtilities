@@ -6,7 +6,7 @@
     // Config schema
     "json.schemas": [
         {
-            "fileMatch": ["/config/**/*.json"],
+            "fileMatch": ["/config/**/*.json", "/examples/**/config.json"],
             "url": "/src/schemas/config.json"
         }
     ]
