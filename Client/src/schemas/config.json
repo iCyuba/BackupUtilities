@@ -57,5 +57,6 @@
             }
         },
         "required": ["sources", "targets", "method", "timing", "retention"]
-    }
+    },
+    "minItems": 1
 }
