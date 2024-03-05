@@ -1,4 +1,4 @@
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 /// <summary>
 /// A backup output that stores the files in a folder on the local filesystem

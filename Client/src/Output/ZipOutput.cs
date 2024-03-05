@@ -1,6 +1,6 @@
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 /// <summary>
 /// A backup output, which writes to a zip file

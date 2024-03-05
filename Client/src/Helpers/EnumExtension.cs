@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Reflection;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 public static class EnumExtension
 {

@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 public static class FileInfoExtension
 {

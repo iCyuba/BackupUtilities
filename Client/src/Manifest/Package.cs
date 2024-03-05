@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 public class PackageManifest(BackupJob.BackupMethod method, Guid full) : Manifest(method)
 {

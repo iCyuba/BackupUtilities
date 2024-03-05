@@ -1,4 +1,4 @@
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 internal class Program
 {

@@ -1,7 +1,7 @@
 using Quartz;
 using Quartz.Impl;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 /// <summary>
 /// The backup scheduler.

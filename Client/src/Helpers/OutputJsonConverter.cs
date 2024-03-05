@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 public class OutputJsonConverter : JsonConverter<BackupJob.BackupOutput>
 {

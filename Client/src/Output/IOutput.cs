@@ -1,7 +1,7 @@
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.GZip;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 public interface IOutput : IDisposable
 {

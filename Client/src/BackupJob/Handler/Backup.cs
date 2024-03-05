@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 public partial class BackupJob
 {

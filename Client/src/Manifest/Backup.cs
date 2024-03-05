@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 public class BackupManifest(DateTime date, BackupJob.BackupMethod method) : Manifest(method)
 {

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace BackupUtility;
+namespace BackupUtilities.Client;
 
 public partial class BackupJob(
     List<string> sources,
