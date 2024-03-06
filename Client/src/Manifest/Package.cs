@@ -53,6 +53,6 @@ public class PackageManifest(BackupJob.BackupMethod method, Guid full) : Manifes
         string path = Path.Combine(target, "manifest.json");
 
         // Serialize the manifest and save it
-        File.WriteAllText(path, JsonSerializer.Serialize(packages, Json.SerializerOptions));
+        File.WriteAllText(path, JsonSerializer.Serialize(packages, Json.SerializerOptionsPretty));
     }
 }

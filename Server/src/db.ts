@@ -6,7 +6,7 @@ export interface File {
     content: BackupJob[];
 }
 
-const defaultUri = "mongodb://localhost:27017/backup-utility";
+const defaultUri = "mongodb://localhost:27017/backup-utilities";
 export const mongo = new MongoClient(Bun.env.MONGO_URI ?? defaultUri);
 
 await mongo.connect();

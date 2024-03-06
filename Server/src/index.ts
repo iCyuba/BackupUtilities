@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { showRoutes } from "hono/dev";
-import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { validator } from "hono/validator";
 import { nanoid } from "nanoid";
+
 import { collection } from "./db";
 import { validate } from "./validation";
 
@@ -26,12 +26,13 @@ const app = new Hono()
         /** Validate the request body */
         validator("json", (value, c) => {
             if (!validate(value))
-                throw new HTTPException(400, {
-                    res: c.json({
+                return c.json(
+                    {
                         error: "Invalid request body",
                         errors: validate.errors,
-                    }),
-                });
+                    },
+                    { status: 400 }
+                );
 
             return value;
         }),
@@ -57,5 +58,8 @@ const app = new Hono()
     );
 
 showRoutes(app);
+
+// Stop the server on Control + D (SIGTERM)
+process.on("SIGTERM", () => process.exit(0));
 
 export default app;

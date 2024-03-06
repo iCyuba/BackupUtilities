@@ -40,6 +40,6 @@ public class BackupManifest(DateTime date, BackupJob.BackupMethod method) : Mani
         string path = Path.Combine(target, $"{id}.json");
 
         // Serialize the manifest and save it
-        File.WriteAllText(path, JsonSerializer.Serialize(this, Json.SerializerOptions));
+        File.WriteAllText(path, JsonSerializer.Serialize(this, Json.SerializerOptionsPretty));
     }
 }

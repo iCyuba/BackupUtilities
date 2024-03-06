@@ -22,11 +22,14 @@ internal class Program
     /// <param name="once">Run the backup once and exit</param>
     static async Task<int> Main(string config = "./config.json", bool once = false)
     {
-        // Load the backup jobs from the default config file
+        // Load the backup jobs from the config file or from the sharing service, if the config is a link to a shared config
         BackupJob[] jobs;
         try
         {
-            jobs = BackupJob.LoadFromConfig(config);
+            if (SharingClient.ParseIdFromUri(config) is string id)
+                jobs = await SharingClient.Get(id);
+            else
+                jobs = BackupJob.LoadFromConfig(config);
         }
         catch (Exception e)
         {

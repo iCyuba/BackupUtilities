@@ -1,4 +1,3 @@
-
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -11,7 +10,9 @@ public static class Json
         new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true,
             Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
         };
+
+    public static readonly JsonSerializerOptions SerializerOptionsPretty =
+        new(SerializerOptions) { WriteIndented = true };
 }

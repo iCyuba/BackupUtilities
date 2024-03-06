@@ -7,7 +7,7 @@ COPY Server/package.json Server/bun.lockb ./
 RUN bun install
 
 COPY Server/src ./src
-COPY Client/src/schemas/config.json ./src/schema.json
+COPY Shared/config.schema.json ./src/schema.json
 
 RUN bun build src/index.ts --compile --outfile server
 
