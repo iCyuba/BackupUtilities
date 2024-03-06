@@ -1,4 +1,5 @@
 using System.Text.Json;
+using BackupUtilities.Shared;
 
 namespace BackupUtilities.Client;
 
@@ -26,7 +27,7 @@ public class BackupManifest(DateTime date, BackupJob.BackupMethod method) : Mani
             throw new FileNotFoundException("Backup manifest not found", path);
 
         string json = File.ReadAllText(path);
-        return JsonSerializer.Deserialize<BackupManifest>(json, JsonUtils.SerializerOptions)!;
+        return JsonSerializer.Deserialize<BackupManifest>(json, Json.SerializerOptions)!;
     }
 
     /// <summary>
@@ -39,6 +40,6 @@ public class BackupManifest(DateTime date, BackupJob.BackupMethod method) : Mani
         string path = Path.Combine(target, $"{id}.json");
 
         // Serialize the manifest and save it
-        File.WriteAllText(path, JsonSerializer.Serialize(this, JsonUtils.SerializerOptions));
+        File.WriteAllText(path, JsonSerializer.Serialize(this, Json.SerializerOptions));
     }
 }

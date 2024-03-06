@@ -1,6 +1,6 @@
 namespace BackupUtilities.Client;
 
-public partial class BackupJob
+public partial class BackupHandler
 {
     /// <summary>
     /// Cleanup old backups from the target based on the retention policy.
@@ -12,11 +12,11 @@ public partial class BackupJob
     private void Cleaup(List<PackageManifest> packages, string target)
     {
         // Don't do anything if the retention policy is disabled or the packages aren't over the limit
-        if (Retention.Count <= 0 || packages.Count <= Retention.Count)
+        if (Job.Retention.Count <= 0 || packages.Count <= Job.Retention.Count)
             return;
 
         // Get the packages and backups to remove
-        var packagesToRemove = packages.Take(packages.Count - Retention.Count);
+        var packagesToRemove = packages.Take(packages.Count - Job.Retention.Count);
         var backupsToRemove = packagesToRemove
             .SelectMany(package => new[] { package.Full }.Concat(package.Other))
             .ToHashSet();

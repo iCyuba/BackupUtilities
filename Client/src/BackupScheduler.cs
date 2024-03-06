@@ -1,3 +1,4 @@
+using BackupUtilities.Shared;
 using Quartz;
 using Quartz.Impl;
 
@@ -18,7 +19,7 @@ public static class BackupScheduler
         public Task Execute(IJobExecutionContext context)
         {
             // Get the job from the data map
-            var job = (BackupJob)context.MergedJobDataMap["job"];
+            var job = (BackupHandler)context.MergedJobDataMap["job"];
 
             // Run the backup...
             job.Backup();
@@ -51,8 +52,8 @@ public static class BackupScheduler
                 .StartNow()
                 .Build();
 
-            // Pass the backup job in the job data map
-            schedulerJob.JobDataMap["job"] = job;
+            // Pass the backup handler in the job data map
+            schedulerJob.JobDataMap["handler"] = new BackupHandler(job);
 
             // Schedule the job
             await scheduler.ScheduleJob(schedulerJob, trigger);

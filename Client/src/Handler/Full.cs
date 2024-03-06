@@ -1,11 +1,13 @@
+using BackupUtilities.Shared;
+
 namespace BackupUtilities.Client;
 
-public partial class BackupJob
+public partial class BackupHandler
 {
     private BackupManifest FullBackup(IOutput output, IEnumerable<FileInfo> files)
     {
         // Create a new backup manifest
-        var backup = new BackupManifest(DateTime.Now, BackupMethod.Full);
+        var backup = new BackupManifest(DateTime.Now, BackupJob.BackupMethod.Full);
 
         // Copy the files to the target
         foreach (var file in files)

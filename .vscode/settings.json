@@ -6,8 +6,8 @@
     // Config schema
     "json.schemas": [
         {
-            "fileMatch": ["/config/**/*.json", "/examples/**/config.json"],
-            "url": "/src/schemas/config.json"
+            "fileMatch": ["**/config.json", "**/config.*.json"],
+            "url": "/Shared/config.schema.json"
         }
     ]
 }

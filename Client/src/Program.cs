@@ -1,3 +1,5 @@
+using BackupUtilities.Shared;
+
 namespace BackupUtilities.Client;
 
 internal class Program
@@ -36,7 +38,7 @@ internal class Program
         if (once)
             try
             {
-                jobs.ToList().ForEach(job => job.Backup());
+                jobs.ToList().ForEach(job => new BackupHandler(job).Backup());
                 return 0;
             }
             catch (Exception e)

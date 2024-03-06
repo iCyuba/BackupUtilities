@@ -1,3 +1,5 @@
+using BackupUtilities.Shared;
+
 namespace BackupUtilities.Client;
 
 public abstract class Manifest(BackupJob.BackupMethod method)

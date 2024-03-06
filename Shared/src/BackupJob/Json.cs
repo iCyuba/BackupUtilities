@@ -1,11 +1,11 @@
 using System.Text.Json;
 using NJsonSchema;
 
-namespace BackupUtilities.Client;
+namespace BackupUtilities.Shared;
 
 public partial class BackupJob
 {
-    private const string CONFIG_SCHEMA = "BackupUtility.src.schemas.config.json";
+    private const string CONFIG_SCHEMA = "BackupUtilities.Shared.config.schema.json";
 
     /// <summary>
     /// The config schema.
@@ -28,7 +28,7 @@ public partial class BackupJob
             throw new JsonException("Invalid config file: " + errors.First().ToString());
 
         // Parse JSON into Config object
-        return JsonSerializer.Deserialize<BackupJob[]>(json, JsonUtils.SerializerOptions)!;
+        return JsonSerializer.Deserialize<BackupJob[]>(json, Json.SerializerOptions)!;
     }
 
     /// <summary>

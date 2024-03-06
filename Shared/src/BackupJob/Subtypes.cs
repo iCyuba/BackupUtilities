@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace BackupUtilities.Client;
+namespace BackupUtilities.Shared;
 
 public partial class BackupJob
 {

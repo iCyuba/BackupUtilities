@@ -10,12 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NJsonSchema" Version="11.0.0-preview006" />
     <PackageReference Include="Quartz" Version="3.8.0" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="System.CommandLine.DragonFruit" Version="0.4.0-alpha.22272.1" />
 
-    <EmbeddedResource Include="src/schemas/config.json" />
+    <ProjectReference Include="../Shared/Shared.csproj" />
   </ItemGroup>
 
 </Project>

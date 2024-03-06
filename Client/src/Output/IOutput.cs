@@ -1,3 +1,4 @@
+using BackupUtilities.Shared;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.GZip;
 

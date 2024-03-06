@@ -1,4 +1,5 @@
 using System.Text.Json;
+using BackupUtilities.Shared;
 
 namespace BackupUtilities.Client;
 
@@ -32,7 +33,7 @@ public class PackageManifest(BackupJob.BackupMethod method, Guid full) : Manifes
 
             packages = JsonSerializer.Deserialize<List<PackageManifest>>(
                 json,
-                JsonUtils.SerializerOptions
+                Json.SerializerOptions
             );
         }
 
@@ -52,6 +53,6 @@ public class PackageManifest(BackupJob.BackupMethod method, Guid full) : Manifes
         string path = Path.Combine(target, "manifest.json");
 
         // Serialize the manifest and save it
-        File.WriteAllText(path, JsonSerializer.Serialize(packages, JsonUtils.SerializerOptions));
+        File.WriteAllText(path, JsonSerializer.Serialize(packages, Json.SerializerOptions));
     }
 }

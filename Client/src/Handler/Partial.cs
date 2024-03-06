@@ -1,6 +1,8 @@
+using BackupUtilities.Shared;
+
 namespace BackupUtilities.Client;
 
-public partial class BackupJob
+public partial class BackupHandler
 {
     private BackupManifest PartialBackup(
         IOutput output,
@@ -13,18 +15,18 @@ public partial class BackupJob
         List<Guid> backups = [package.Full];
 
         // If the backup method is incremental, add all the other backups to the list
-        if (Method == BackupMethod.Incremental)
+        if (Job.Method == BackupJob.BackupMethod.Incremental)
             backups.AddRange(package.Other);
 
         // Get the hashes of already backed up files
         var hashes = backups
-            .Select(id => JsonUtils.Load<BackupManifest>(Path.Combine(target, $"{id}.json")))
+            .Select(id => BackupManifest.Load(target, id))
             .SelectMany(backup => backup.Files)
             .GroupBy(file => file.Key, file => file.Value)
             .ToDictionary(file => file.Key, file => file.Last());
 
         // Create a new backup and add it to the package
-        var backup = new BackupManifest(DateTime.Now, Method);
+        var backup = new BackupManifest(DateTime.Now, Job.Method);
 
         // Copy the files to the target
         foreach (var file in files)

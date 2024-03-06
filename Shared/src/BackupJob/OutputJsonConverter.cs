@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace BackupUtilities.Client;
+namespace BackupUtilities.Shared;
 
-public class OutputJsonConverter : JsonConverter<BackupJob.BackupOutput>
+class OutputJsonConverter : JsonConverter<BackupJob.BackupOutput>
 {
     public override BackupJob.BackupOutput Read(
         ref Utf8JsonReader reader,

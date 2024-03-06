@@ -17,7 +17,7 @@ public static class PathUtils
         // Check if the path is a file
         if (File.Exists(path))
             // Return a hashset with only that file
-            return new FileInfo[] { new(path) };
+            return [new(path)];
 
         // If it's a directory, return all files in the directory
         if (Directory.Exists(path))
