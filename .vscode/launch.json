@@ -12,6 +12,14 @@
                 "--config",
                 "${workspaceFolder}/.config/config.json"
             ]
+        },
+
+        {
+            "name": ".NET Core Launch: BackupUtilities Config Editor",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Config/bin/Debug/net8.0/Config.dll"
         }
     ]
 }
