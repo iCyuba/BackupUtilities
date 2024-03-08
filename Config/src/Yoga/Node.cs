@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using BackupUtilities.Config.Yoga.Interop;
 
 namespace BackupUtilities.Config.Yoga;
@@ -36,10 +37,38 @@ public unsafe partial class Node(void* handle) : YogaHandle(handle)
 
     public void MarkDirty() => Methods.YGNodeMarkDirty(Handle);
 
-    // public Action DirtifiedFunc {
-    //     get => Methods.YGNodeGetDirtiedFunc(Handle);
-    //     set => Methods.YGNodeSetDirtiedFunc(Handle, value);
-    // }
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void DirtiedFuncInternalDelegate(void* node);
+
+    // This must be referenced to prevent the delegate from being garbage collected.
+    private DirtiedFuncInternalDelegate? _dirtiedFuncInternal;
+    private Action? _dirtiedFunc;
+
+    public Action? DirtiedFunc
+    {
+        get => _dirtiedFunc;
+        set
+        {
+            _dirtiedFunc = value;
+
+            if (value == null)
+            {
+                Methods.YGNodeSetDirtiedFunc(Handle, null);
+                return;
+            }
+
+            // If the function had been set previously, we can reuse the internal delegate, and just update the dirtied function reference.
+            if (_dirtiedFuncInternal != null)
+                return;
+
+            _dirtiedFuncInternal = (_) => _dirtiedFunc!();
+            Methods.YGNodeSetDirtiedFunc(
+                Handle,
+                (delegate* unmanaged[Cdecl]<void*, void>)
+                    Marshal.GetFunctionPointerForDelegate(_dirtiedFuncInternal)
+            );
+        }
+    }
 
     public void InsertChild(Node child, uint index) =>
         Methods.YGNodeInsertChild(Handle, child.Handle, index);
@@ -73,15 +102,85 @@ public unsafe partial class Node(void* handle) : YogaHandle(handle)
 
     public nuint ChildCount => Methods.YGNodeGetChildCount(Handle);
 
-    // public void SetMeasureFunc(Func<void*, float, YGMeasureMode, float, YGMeasureMode, YGSize> func)
-    // {
-    //     delegate* unmanaged[Cdecl]<void*, float, YGMeasureMode, float, YGMeasureMode, YGSize> f = &MeasureFuncInternal;
-    // }
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate YGSize MeasureFuncInternalDelegate(
+        void* node,
+        float width,
+        YGMeasureMode widthMode,
+        float height,
+        YGMeasureMode heightMode
+    );
+
+    private MeasureFuncInternalDelegate? _measureFuncInternal;
+    private Func<Node, float, YGMeasureMode, float, YGMeasureMode, YGSize>? _measureFunc;
+
+    public Func<Node, float, YGMeasureMode, float, YGMeasureMode, YGSize>? MeasureFunc
+    {
+        get => _measureFunc;
+        set
+        {
+            _measureFunc = value;
+
+            if (value == null)
+            {
+                Methods.YGNodeSetMeasureFunc(Handle, null);
+                return;
+            }
+
+            // Reuse the internal function, when available
+            if (_measureFuncInternal != null)
+                return;
+
+            _measureFuncInternal = (_, w, wMode, h, hMode) =>
+                _measureFunc!(this, w, wMode, h, hMode);
+
+            Methods.YGNodeSetMeasureFunc(
+                Handle,
+                (delegate* unmanaged[Cdecl]<
+                    void*,
+                    float,
+                    YGMeasureMode,
+                    float,
+                    YGMeasureMode,
+                    YGSize>)
+                    Marshal.GetFunctionPointerForDelegate(_measureFuncInternal)
+            );
+        }
+    }
 
     public bool HasMeasureFunc => Methods.YGNodeHasMeasureFunc(Handle);
 
-    // public void SetBaselineFunc(Func<float, float, float> func)
-    //     => Methods.YGNodeSetBaselineFunc(Handle, func);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate float BaselineFuncInternalDelegate(void* node, float width, float height);
+
+    private BaselineFuncInternalDelegate? _baselineFuncInternal;
+    private Func<Node, float, float, float>? _baselineFunc;
+
+    public Func<Node, float, float, float>? BaselineFunc
+    {
+        get => _baselineFunc;
+        set
+        {
+            _baselineFunc = value;
+
+            if (value == null)
+            {
+                Methods.YGNodeSetBaselineFunc(Handle, null);
+                return;
+            }
+
+            // Reuse the internal function, when available
+            if (_baselineFuncInternal != null)
+                return;
+
+            _baselineFuncInternal = (_, w, h) => _baselineFunc!(this, w, h);
+            Methods.YGNodeSetBaselineFunc(
+                Handle,
+                (delegate* unmanaged[Cdecl]<void*, float, float, float>)
+                    Marshal.GetFunctionPointerForDelegate(_baselineFuncInternal)
+            );
+        }
+    }
 
     public bool HasBaselineFunc => Methods.YGNodeHasBaselineFunc(Handle);
 

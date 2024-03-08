@@ -39,9 +39,8 @@ internal static class Program
         subNode1.SetWidth(10);
         subNode1.SetHeight(5);
 
-        Node subNode2 = new();
-        subNode2.SetWidth(20);
-        subNode2.SetHeight(5);
+        Node subNode2 =
+            new() { MeasureFunc = (_, w, wMode, h, hMode) => new() { width = 15, height = 5 } };
 
         node1.SetChildren([subNode1, subNode2]);
 
