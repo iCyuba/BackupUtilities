@@ -37,7 +37,7 @@ public class ConsoleRenderer(Node root)
                 _screenBuffer![y, x] = "█";
 
         // Children
-        for (nuint i = 0; i < node.ChildCount; i++)
-            RenderNode(node.GetChild((uint)i)!);
+        for (int i = 0; i < node.ChildCount; i++)
+            RenderNode(node.GetChild(i)!);
     }
 }

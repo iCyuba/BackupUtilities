@@ -2,12 +2,31 @@ using BackupUtilities.Config.Yoga.Interop;
 
 namespace BackupUtilities.Config.Yoga;
 
-public unsafe class Config(void* handle) : YogaHandle(handle)
+public unsafe class Config : YogaHandle
 {
+    private bool _disposed = false;
+
+    private Config(void* handle)
+        : base(handle) { }
+
     public Config()
         : this(Methods.YGConfigNew()) { }
 
-    public void Free() => Methods.YGConfigFree(Handle);
+    ~Config()
+    {
+        if (!_disposed)
+            Free();
+    }
+
+    public static Config Default { get; } = new(Methods.YGConfigGetDefault());
+
+    public void Free()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        _disposed = true;
+        Methods.YGConfigFree(Handle);
+    }
 
     public bool ExperimentalFeatureWebFlexBasis
     {

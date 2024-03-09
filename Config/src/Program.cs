@@ -53,7 +53,7 @@ internal static class Program
         ConsoleRenderer renderer = new(root);
         renderer.Render();
 
-        // Must free the nodes to avoid memory leaks (ignore the fact that this is the last call....)
+        // Freeing the nodes isn't necessary, but why not
         root.FreeRecursive();
     }
 }

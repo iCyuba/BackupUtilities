@@ -3,23 +3,93 @@ using BackupUtilities.Config.Yoga.Interop;
 
 namespace BackupUtilities.Config.Yoga;
 
-public unsafe partial class Node(void* handle) : YogaHandle(handle)
+/// <summary>
+/// Node for the Yoga layout system.
+///
+/// <br/>
+///
+/// This is simply a wrapper around the C API.
+/// But please do not use the C API directly, as some additional logic is handled here!
+/// (For example, changing the children using the C api would not get detected by the C# wrapper)
+/// </summary>
+/// <param name="handle"></param>
+public unsafe partial class Node(Config config)
+    : YogaHandle(Methods.YGNodeNewWithConfig(config.Handle))
 {
-    public Node(Config config)
-        : this(Methods.YGNodeNewWithConfig(config.Handle)) { }
+    /// <summary>
+    /// The children of this node. solely for reference counting.
+    /// </summary>
+    private List<Node> _children = [];
 
+    /// <summary>
+    /// An owner is used to identify the YogaTree that a Node belongs to.
+    /// This will return the parent of the Node when a Node only belongs to
+    /// one YogaTree or null when the Node is shared between two or more YogaTrees.
+    /// </summary>
+    public Node? Owner { get; private set; }
+
+    /// <summary>
+    /// Alias of owner... Why? To match the C api
+    /// </summary>
+    public Node? Parent => Owner;
+
+    private Config _config = config;
+
+    private bool _disposed = false;
+
+    // This is the same as the C "YGNodeNew" function, but it sets the config to the C# reference of the default one.
     public Node()
-        : this(Methods.YGNodeNew()) { }
+        : this(Config.Default) { }
 
-    public Node Clone() => new(Methods.YGNodeClone(Handle));
+    ~Node()
+    {
+        // Prevent finalization if the node has been freed
+        if (!_disposed)
+            Free();
+    }
 
-    public virtual void Free() => Methods.YGNodeFree(Handle);
+    public Node Clone() => throw new NotImplementedException();
 
-    public virtual void FreeRecursive() => Methods.YGNodeFreeRecursive(Handle);
+    private void PreFinalize()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
 
-    public virtual void NodeFinalize() => Methods.YGNodeFinalize(Handle);
+        _children.Clear();
+        Owner = null;
 
-    public virtual void Reset() => Methods.YGNodeReset(Handle);
+        _disposed = true;
+    }
+
+    public void Free()
+    {
+        PreFinalize();
+
+        Methods.YGNodeFree(Handle);
+    }
+
+    public void FreeRecursive()
+    {
+        PreFinalize();
+
+        Methods.YGNodeFreeRecursive(Handle);
+    }
+
+    public void NodeFinalize()
+    {
+        PreFinalize();
+
+        Methods.YGNodeFinalize(Handle);
+    }
+
+    public virtual void Reset()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        _children.Clear();
+        Owner = null;
+
+        Methods.YGNodeReset(Handle);
+    }
 
     public void CalculateLayout(
         float width,
@@ -35,16 +105,24 @@ public unsafe partial class Node(void* handle) : YogaHandle(handle)
 
     public bool IsDirty => Methods.YGNodeIsDirty(Handle);
 
-    public void MarkDirty() => Methods.YGNodeMarkDirty(Handle);
+    public void MarkDirty()
+    {
+        if (_measureFuncInternal == null)
+            throw new InvalidOperationException(
+                "Only leaf nodes with custom measure functions should manually mark themselves as dirty"
+            );
+
+        Methods.YGNodeMarkDirty(Handle);
+    }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void DirtiedFuncInternalDelegate(void* node);
 
     // This must be referenced to prevent the delegate from being garbage collected.
     private DirtiedFuncInternalDelegate? _dirtiedFuncInternal;
-    private Action? _dirtiedFunc;
+    private Action<Node>? _dirtiedFunc;
 
-    public Action? DirtiedFunc
+    public Action<Node>? DirtiedFunc
     {
         get => _dirtiedFunc;
         set
@@ -57,11 +135,11 @@ public unsafe partial class Node(void* handle) : YogaHandle(handle)
                 return;
             }
 
-            // If the function had been set previously, we can reuse the internal delegate, and just update the dirtied function reference.
+            // If the function had been set previously, the internal delegate can be reused.
             if (_dirtiedFuncInternal != null)
                 return;
 
-            _dirtiedFuncInternal = (_) => _dirtiedFunc!();
+            _dirtiedFuncInternal = (_) => _dirtiedFunc!(this);
             Methods.YGNodeSetDirtiedFunc(
                 Handle,
                 (delegate* unmanaged[Cdecl]<void*, void>)
@@ -70,37 +148,121 @@ public unsafe partial class Node(void* handle) : YogaHandle(handle)
         }
     }
 
-    public void InsertChild(Node child, uint index) =>
-        Methods.YGNodeInsertChild(Handle, child.Handle, index);
+    public void InsertChild(Node child, int index)
+    {
+        if (child.Owner != null)
+            throw new InvalidOperationException(
+                "Child already has an owner, it must be removed first."
+            );
 
-    public void SwapChild(Node child, uint index) =>
-        Methods.YGNodeSwapChild(Handle, child.Handle, index);
+        if (_measureFuncInternal != null)
+            throw new InvalidOperationException(
+                "Cannot add child: Nodes with measure functions cannot have children."
+            );
 
-    public void RemoveChild(Node child) => Methods.YGNodeRemoveChild(Handle, child.Handle);
+        _children.Insert(index, child);
+        child.Owner = this;
 
-    public void RemoveAllChildren() => Methods.YGNodeRemoveAllChildren(Handle);
+        Methods.YGNodeInsertChild(Handle, child.Handle, (uint)index);
+    }
+
+    public void SwapChild(Node child, int index)
+    {
+        // The C function doesn't seem to reset the owner of the old child. So it's not done here either.
+        _children[index] = child;
+        child.Owner = this;
+
+        // Unlike in InsertChild, there is no check being done here, for some reason.
+
+        Methods.YGNodeSwapChild(Handle, child.Handle, (uint)index);
+    }
+
+    public void RemoveChild(Node child)
+    {
+        if (_children.Count == 0)
+            return;
+
+        // Only reset the owner, when it's this node
+        if (Owner == this)
+            child.Owner = null;
+
+        // Remove the child from the list
+        _children.Remove(child);
+
+        Methods.YGNodeRemoveChild(Handle, child.Handle);
+    }
+
+    public void RemoveAllChildren()
+    {
+        if (_children.Count == 0)
+            return;
+
+        // If this node is the owner of the children (Yoga only checks for the first one),
+        // it should be set to null.
+        if (_children[0].Owner == this)
+            foreach (Node child in _children)
+                child.Owner = null;
+
+        // Clear the children list
+        _children.Clear();
+
+        Methods.YGNodeRemoveAllChildren(Handle);
+    }
 
     public void SetChildren(IEnumerable<Node> children)
     {
-        int count = children.Count();
+        // Set every old child's owner to null, unless it's in the new children list
+        foreach (var child in _children.Where(child => !children.Contains(child)))
+            child.Owner = null;
+
+        // Store the children for reference counting
+        _children = children.ToList();
 
         // Can't use LINQ when working with pointers ig
-        void*[] handles = new void*[count];
+        void*[] handles = new void*[_children.Count];
 
-        for (int i = 0; i < children.Count(); i++)
-            handles[i] = children.ElementAt(i).Handle;
+        for (int i = 0; i < _children.Count; i++)
+        {
+            Node child = _children[i];
+
+            child.Owner = this;
+            handles[i] = child.Handle;
+        }
 
         fixed (void** handlesPtr = &handles[0])
-            Methods.YGNodeSetChildren(Handle, handlesPtr, (uint)count);
+            Methods.YGNodeSetChildren(Handle, handlesPtr, (uint)_children.Count);
     }
 
-    public Node? GetChild(uint index)
+    public Node? GetChild(int index)
     {
-        void* child = Methods.YGNodeGetChild(Handle, index);
-        return child == null ? null : new Node(child);
+        if (index < 0 || index >= _children.Count)
+            return null;
+
+        return _children[index];
     }
 
-    public nuint ChildCount => Methods.YGNodeGetChildCount(Handle);
+    public Config Config
+    {
+        get => _config;
+        set
+        {
+            if (_config == null)
+                throw new InvalidOperationException(
+                    "Cannot set the config of a node that is not owned by a YogaTree."
+                );
+
+            if (_config.UseWebDefaults != value.UseWebDefaults)
+                throw new InvalidOperationException(
+                    "UseWebDefaults may not be changed after constructing a Node"
+                );
+
+            _config = value;
+
+            Methods.YGNodeSetConfig(Handle, value == null ? null : value.Handle);
+        }
+    }
+
+    public int ChildCount => _children.Count;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate YGSize MeasureFuncInternalDelegate(
@@ -119,6 +281,11 @@ public unsafe partial class Node(void* handle) : YogaHandle(handle)
         get => _measureFunc;
         set
         {
+            if (_children.Count > 0)
+                throw new InvalidOperationException(
+                    "Cannot set measure function: Nodes with measure functions cannot have children."
+                );
+
             _measureFunc = value;
 
             if (value == null)
