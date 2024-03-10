@@ -1,16 +1,16 @@
-using BackupUtilities.Config.Yoga.Interop;
+using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.ConsoleUI;
 
 public class RootNode : RenderableNode
 {
     // Readonly properties for the root node
-    public static new YGPositionType PositionType => YGPositionType.YGPositionTypeRelative;
+    public static new PositionType PositionType => PositionType.Relative;
 
     public RootNode()
     {
         // Set position to relative
-        base.PositionType = YGPositionType.YGPositionTypeRelative;
+        base.PositionType = PositionType.Relative;
     }
 
     public override string[,] Render()

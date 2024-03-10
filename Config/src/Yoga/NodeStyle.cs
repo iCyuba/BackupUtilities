@@ -1,184 +1,263 @@
-using BackupUtilities.Config.Yoga.Interop;
-
 namespace BackupUtilities.Config.Yoga;
 
 public unsafe partial class Node
 {
-    public void CopyStyle(Node source) => Methods.YGNodeCopyStyle(Handle, source.Handle);
+    public void CopyStyle(Node source) => YGNodeCopyStyle(Handle, source.Handle);
 
-    public YGDirection Direction
+    public Direction Direction
     {
-        get => Methods.YGNodeStyleGetDirection(Handle);
-        set => Methods.YGNodeStyleSetDirection(Handle, value);
+        get => YGNodeStyleGetDirection(Handle);
+        set => YGNodeStyleSetDirection(Handle, value);
     }
 
-    public YGFlexDirection FlexDirection
+    public FlexDirection FlexDirection
     {
-        get => Methods.YGNodeStyleGetFlexDirection(Handle);
-        set => Methods.YGNodeStyleSetFlexDirection(Handle, value);
+        get => YGNodeStyleGetFlexDirection(Handle);
+        set => YGNodeStyleSetFlexDirection(Handle, value);
     }
 
-    public YGJustify JustifyContent
+    public Justify JustifyContent
     {
-        get => Methods.YGNodeStyleGetJustifyContent(Handle);
-        set => Methods.YGNodeStyleSetJustifyContent(Handle, value);
+        get => YGNodeStyleGetJustifyContent(Handle);
+        set => YGNodeStyleSetJustifyContent(Handle, value);
     }
 
-    public YGAlign AlignContent
+    public Align AlignContent
     {
-        get => Methods.YGNodeStyleGetAlignContent(Handle);
-        set => Methods.YGNodeStyleSetAlignContent(Handle, value);
+        get => YGNodeStyleGetAlignContent(Handle);
+        set => YGNodeStyleSetAlignContent(Handle, value);
     }
 
-    public YGAlign AlignItems
+    public Align AlignItems
     {
-        get => Methods.YGNodeStyleGetAlignItems(Handle);
-        set => Methods.YGNodeStyleSetAlignItems(Handle, value);
+        get => YGNodeStyleGetAlignItems(Handle);
+        set => YGNodeStyleSetAlignItems(Handle, value);
     }
 
-    public YGAlign AlignSelf
+    public Align AlignSelf
     {
-        get => Methods.YGNodeStyleGetAlignSelf(Handle);
-        set => Methods.YGNodeStyleSetAlignSelf(Handle, value);
+        get => YGNodeStyleGetAlignSelf(Handle);
+        set => YGNodeStyleSetAlignSelf(Handle, value);
     }
 
-    public YGPositionType PositionType
+    public PositionType PositionType
     {
-        get => Methods.YGNodeStyleGetPositionType(Handle);
-        set => Methods.YGNodeStyleSetPositionType(Handle, value);
+        get => YGNodeStyleGetPositionType(Handle);
+        set => YGNodeStyleSetPositionType(Handle, value);
     }
 
-    public YGWrap FlexWrap
+    public Wrap FlexWrap
     {
-        get => Methods.YGNodeStyleGetFlexWrap(Handle);
-        set => Methods.YGNodeStyleSetFlexWrap(Handle, value);
+        get => YGNodeStyleGetFlexWrap(Handle);
+        set => YGNodeStyleSetFlexWrap(Handle, value);
     }
 
-    public YGOverflow Overflow
+    public Overflow Overflow
     {
-        get => Methods.YGNodeStyleGetOverflow(Handle);
-        set => Methods.YGNodeStyleSetOverflow(Handle, value);
+        get => YGNodeStyleGetOverflow(Handle);
+        set => YGNodeStyleSetOverflow(Handle, value);
     }
 
-    public YGDisplay Display
+    public Display Display
     {
-        get => Methods.YGNodeStyleGetDisplay(Handle);
-        set => Methods.YGNodeStyleSetDisplay(Handle, value);
+        get => YGNodeStyleGetDisplay(Handle);
+        set => YGNodeStyleSetDisplay(Handle, value);
     }
 
     public float Flex
     {
-        get => Methods.YGNodeStyleGetFlex(Handle);
-        set => Methods.YGNodeStyleSetFlex(Handle, value);
+        get => YGNodeStyleGetFlex(Handle);
+        set => YGNodeStyleSetFlex(Handle, value);
     }
 
     public float FlexGrow
     {
-        get => Methods.YGNodeStyleGetFlexGrow(Handle);
-        set => Methods.YGNodeStyleSetFlexGrow(Handle, value);
+        get => YGNodeStyleGetFlexGrow(Handle);
+        set => YGNodeStyleSetFlexGrow(Handle, value);
     }
 
     public float FlexShrink
     {
-        get => Methods.YGNodeStyleGetFlexShrink(Handle);
-        set => Methods.YGNodeStyleSetFlexShrink(Handle, value);
+        get => YGNodeStyleGetFlexShrink(Handle);
+        set => YGNodeStyleSetFlexShrink(Handle, value);
     }
 
-    public Value FlexBasis => Value.FromYGValue(Methods.YGNodeStyleGetFlexBasis(Handle));
+    public Length FlexBasis
+    {
+        get => YGNodeStyleGetFlexBasis(Handle);
+        set
+        {
+            switch (value.Unit)
+            {
+                case Unit.Point:
+                    YGNodeStyleSetFlexBasis(Handle, value.Value);
+                    break;
+                case Unit.Percent:
+                    YGNodeStyleSetFlexBasisPercent(Handle, value.Value);
+                    break;
+                case Unit.Auto:
+                    YGNodeStyleSetFlexBasisAuto(Handle);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+    }
 
-    public void SetFlexBasis(float value) => Methods.YGNodeStyleSetFlexBasis(Handle, value);
+    public Length GetPosition(Edge edge) => YGNodeStyleGetPosition(Handle, edge);
 
-    public void SetFlexBasisPercent(float value) =>
-        Methods.YGNodeStyleSetFlexBasisPercent(Handle, value);
+    public void SetPosition(Edge edge, float value) => YGNodeStyleSetPosition(Handle, edge, value);
 
-    public void SetFlexBasisAuto() => Methods.YGNodeStyleSetFlexBasisAuto(Handle);
+    public void SetPositionPercent(Edge edge, float value) =>
+        YGNodeStyleSetPositionPercent(Handle, edge, value);
 
-    public Value GetPosition(YGEdge edge) =>
-        Value.FromYGValue(Methods.YGNodeStyleGetPosition(Handle, edge));
+    public Length GetMargin(Edge edge) => YGNodeStyleGetMargin(Handle, edge);
 
-    public void SetPosition(YGEdge edge, float value) =>
-        Methods.YGNodeStyleSetPosition(Handle, edge, value);
+    public void SetMargin(Edge edge, float value) => YGNodeStyleSetMargin(Handle, edge, value);
 
-    public void SetPositionPercent(YGEdge edge, float value) =>
-        Methods.YGNodeStyleSetPositionPercent(Handle, edge, value);
+    public void SetMarginPercent(Edge edge, float value) =>
+        YGNodeStyleSetMarginPercent(Handle, edge, value);
 
-    public Value GetMargin(YGEdge edge) =>
-        Value.FromYGValue(Methods.YGNodeStyleGetMargin(Handle, edge));
+    public void SetMarginAuto(Edge edge) => YGNodeStyleSetMarginAuto(Handle, edge);
 
-    public void SetMargin(YGEdge edge, float value) =>
-        Methods.YGNodeStyleSetMargin(Handle, edge, value);
+    public Length GetPadding(Edge edge) => YGNodeStyleGetPadding(Handle, edge);
 
-    public void SetMarginPercent(YGEdge edge, float value) =>
-        Methods.YGNodeStyleSetMarginPercent(Handle, edge, value);
+    public void SetPadding(Edge edge, float value) => YGNodeStyleSetPadding(Handle, edge, value);
 
-    public void SetMarginAuto(YGEdge edge) => Methods.YGNodeStyleSetMarginAuto(Handle, edge);
+    public void SetPaddingPercent(Edge edge, float value) =>
+        YGNodeStyleSetPaddingPercent(Handle, edge, value);
 
-    public Value GetPadding(YGEdge edge) =>
-        Value.FromYGValue(Methods.YGNodeStyleGetPadding(Handle, edge));
+    public float GetBorder(Edge edge) => YGNodeStyleGetBorder(Handle, edge);
 
-    public void SetPadding(YGEdge edge, float value) =>
-        Methods.YGNodeStyleSetPadding(Handle, edge, value);
+    public void SetBorder(Edge edge, float value) => YGNodeStyleSetBorder(Handle, edge, value);
 
-    public void SetPaddingPercent(YGEdge edge, float value) =>
-        Methods.YGNodeStyleSetPaddingPercent(Handle, edge, value);
+    public float GetGap(Gutter gutter) => YGNodeStyleGetGap(Handle, gutter);
 
-    public float GetBorder(YGEdge edge) => Methods.YGNodeStyleGetBorder(Handle, edge);
+    public void SetGap(Gutter gutter, float value) => YGNodeStyleSetGap(Handle, gutter, value);
 
-    public void SetBorder(YGEdge edge, float value) =>
-        Methods.YGNodeStyleSetBorder(Handle, edge, value);
+    public Length Width
+    {
+        get => YGNodeStyleGetWidth(Handle);
+        set
+        {
+            switch (value.Unit)
+            {
+                case Unit.Point:
+                    YGNodeStyleSetWidth(Handle, value.Value);
+                    break;
+                case Unit.Percent:
+                    YGNodeStyleSetWidthPercent(Handle, value.Value);
+                    break;
+                case Unit.Auto:
+                    YGNodeStyleSetWidthAuto(Handle);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+    }
 
-    public float GetGap(YGGutter gutter) => Methods.YGNodeStyleGetGap(Handle, gutter);
+    public Length Height
+    {
+        get => YGNodeStyleGetHeight(Handle);
+        set
+        {
+            switch (value.Unit)
+            {
+                case Unit.Point:
+                    YGNodeStyleSetHeight(Handle, value.Value);
+                    break;
+                case Unit.Percent:
+                    YGNodeStyleSetHeightPercent(Handle, value.Value);
+                    break;
+                case Unit.Auto:
+                    YGNodeStyleSetHeightAuto(Handle);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+    }
 
-    public void SetGap(YGGutter gutter, float value) =>
-        Methods.YGNodeStyleSetGap(Handle, gutter, value);
+    public Length MinWidth
+    {
+        get => YGNodeStyleGetMinWidth(Handle);
+        set
+        {
+            switch (value.Unit)
+            {
+                case Unit.Point:
+                    YGNodeStyleSetMinWidth(Handle, value.Value);
+                    break;
+                case Unit.Percent:
+                    YGNodeStyleSetMinWidthPercent(Handle, value.Value);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+    }
 
-    public Value Width => Value.FromYGValue(Methods.YGNodeStyleGetWidth(Handle));
+    public Length MinHeight
+    {
+        get => YGNodeStyleGetMinHeight(Handle);
+        set
+        {
+            switch (value.Unit)
+            {
+                case Unit.Point:
+                    YGNodeStyleSetMinHeight(Handle, value.Value);
+                    break;
+                case Unit.Percent:
+                    YGNodeStyleSetMinHeightPercent(Handle, value.Value);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+    }
 
-    public void SetWidth(float value) => Methods.YGNodeStyleSetWidth(Handle, value);
+    public Length MaxWidth
+    {
+        get => YGNodeStyleGetMaxWidth(Handle);
+        set
+        {
+            switch (value.Unit)
+            {
+                case Unit.Point:
+                    YGNodeStyleSetMaxWidth(Handle, value.Value);
+                    break;
+                case Unit.Percent:
+                    YGNodeStyleSetMaxWidthPercent(Handle, value.Value);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+    }
 
-    public void SetWidthPercent(float value) => Methods.YGNodeStyleSetWidthPercent(Handle, value);
-
-    public void SetWidthAuto() => Methods.YGNodeStyleSetWidthAuto(Handle);
-
-    public Value Height => Value.FromYGValue(Methods.YGNodeStyleGetHeight(Handle));
-
-    public void SetHeight(float value) => Methods.YGNodeStyleSetHeight(Handle, value);
-
-    public void SetHeightPercent(float value) => Methods.YGNodeStyleSetHeightPercent(Handle, value);
-
-    public void SetHeightAuto() => Methods.YGNodeStyleSetHeightAuto(Handle);
-
-    public Value MinWidth => Value.FromYGValue(Methods.YGNodeStyleGetMinWidth(Handle));
-
-    public void SetMinWidth(float value) => Methods.YGNodeStyleSetMinWidth(Handle, value);
-
-    public void SetMinWidthPercent(float value) =>
-        Methods.YGNodeStyleSetMinWidthPercent(Handle, value);
-
-    public Value MinHeight => Value.FromYGValue(Methods.YGNodeStyleGetMinHeight(Handle));
-
-    public void SetMinHeight(float value) => Methods.YGNodeStyleSetMinHeight(Handle, value);
-
-    public void SetMinHeightPercent(float value) =>
-        Methods.YGNodeStyleSetMinHeightPercent(Handle, value);
-
-    public Value MaxWidth => Value.FromYGValue(Methods.YGNodeStyleGetMaxWidth(Handle));
-
-    public void SetMaxWidth(float value) => Methods.YGNodeStyleSetMaxWidth(Handle, value);
-
-    public void SetMaxWidthPercent(float value) =>
-        Methods.YGNodeStyleSetMaxWidthPercent(Handle, value);
-
-    public Value MaxHeight => Value.FromYGValue(Methods.YGNodeStyleGetMaxHeight(Handle));
-
-    public void SetMaxHeight(float value) => Methods.YGNodeStyleSetMaxHeight(Handle, value);
-
-    public void SetMaxHeightPercent(float value) =>
-        Methods.YGNodeStyleSetMaxHeightPercent(Handle, value);
+    public Length MaxHeight
+    {
+        get => YGNodeStyleGetMaxHeight(Handle);
+        set
+        {
+            switch (value.Unit)
+            {
+                case Unit.Point:
+                    YGNodeStyleSetMaxHeight(Handle, value.Value);
+                    break;
+                case Unit.Percent:
+                    YGNodeStyleSetMaxHeightPercent(Handle, value.Value);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+    }
 
     public float AspectRatio
     {
-        get => Methods.YGNodeStyleGetAspectRatio(Handle);
-        set => Methods.YGNodeStyleSetAspectRatio(Handle, value);
+        get => YGNodeStyleGetAspectRatio(Handle);
+        set => YGNodeStyleSetAspectRatio(Handle, value);
     }
 }

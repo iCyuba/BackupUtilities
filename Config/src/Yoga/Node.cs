@@ -1,6 +1,3 @@
-using System.Runtime.InteropServices;
-using BackupUtilities.Config.Yoga.Interop;
-
 namespace BackupUtilities.Config.Yoga;
 
 /// <summary>
@@ -13,7 +10,7 @@ namespace BackupUtilities.Config.Yoga;
 /// (For example, changing the children using the C api would not get detected by the C# wrapper)
 /// </summary>
 /// <param name="config">The Yoga configuration to use</param>
-public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConfig(config.Handle))
+public unsafe partial class Node(Config config) : Base(YGNodeNewWithConfig(config.Handle))
 {
     /// <summary>
     /// The children of this node. solely for reference counting.
@@ -63,21 +60,21 @@ public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConf
     {
         PreFinalize();
 
-        Methods.YGNodeFree(Handle);
+        YGNodeFree(Handle);
     }
 
     public void FreeRecursive()
     {
         PreFinalize();
 
-        Methods.YGNodeFreeRecursive(Handle);
+        YGNodeFreeRecursive(Handle);
     }
 
     public void NodeFinalize()
     {
         PreFinalize();
 
-        Methods.YGNodeFinalize(Handle);
+        YGNodeFinalize(Handle);
     }
 
     public virtual void Reset()
@@ -87,22 +84,19 @@ public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConf
         _children.Clear();
         Owner = null;
 
-        Methods.YGNodeReset(Handle);
+        YGNodeReset(Handle);
     }
 
-    public void CalculateLayout(
-        float width,
-        float height,
-        YGDirection direction = YGDirection.YGDirectionLTR
-    ) => Methods.YGNodeCalculateLayout(Handle, width, height, direction);
+    public void CalculateLayout(float width, float height, Direction direction = Direction.LTR) =>
+        YGNodeCalculateLayout(Handle, width, height, direction);
 
     public bool HasNewLayout
     {
-        get => Methods.YGNodeGetHasNewLayout(Handle);
-        set => Methods.YGNodeSetHasNewLayout(Handle, value);
+        get => YGNodeGetHasNewLayout(Handle);
+        set => YGNodeSetHasNewLayout(Handle, value);
     }
 
-    public bool IsDirty => Methods.YGNodeIsDirty(Handle);
+    public bool IsDirty => YGNodeIsDirty(Handle);
 
     public void MarkDirty()
     {
@@ -111,40 +105,7 @@ public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConf
                 "Only leaf nodes with custom measure functions should manually mark themselves as dirty"
             );
 
-        Methods.YGNodeMarkDirty(Handle);
-    }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate void DirtiedFuncInternalDelegate(void* node);
-
-    // This must be referenced to prevent the delegate from being garbage collected.
-    private DirtiedFuncInternalDelegate? _dirtiedFuncInternal;
-    private Action<Node>? _dirtiedFunc;
-
-    public Action<Node>? DirtiedFunc
-    {
-        get => _dirtiedFunc;
-        set
-        {
-            _dirtiedFunc = value;
-
-            if (value == null)
-            {
-                Methods.YGNodeSetDirtiedFunc(Handle, null);
-                return;
-            }
-
-            // If the function had been set previously, the internal delegate can be reused.
-            if (_dirtiedFuncInternal != null)
-                return;
-
-            _dirtiedFuncInternal = (_) => _dirtiedFunc!(this);
-            Methods.YGNodeSetDirtiedFunc(
-                Handle,
-                (delegate* unmanaged[Cdecl]<void*, void>)
-                    Marshal.GetFunctionPointerForDelegate(_dirtiedFuncInternal)
-            );
-        }
+        YGNodeMarkDirty(Handle);
     }
 
     public void InsertChild(Node child, int index)
@@ -162,7 +123,7 @@ public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConf
         _children.Insert(index, child);
         child.Owner = this;
 
-        Methods.YGNodeInsertChild(Handle, child.Handle, (uint)index);
+        YGNodeInsertChild(Handle, child.Handle, (uint)index);
     }
 
     public void SwapChild(Node child, int index)
@@ -173,7 +134,7 @@ public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConf
 
         // Unlike in InsertChild, there is no check being done here, for some reason.
 
-        Methods.YGNodeSwapChild(Handle, child.Handle, (uint)index);
+        YGNodeSwapChild(Handle, child.Handle, (uint)index);
     }
 
     public void RemoveChild(Node child)
@@ -188,7 +149,7 @@ public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConf
         // Remove the child from the list
         _children.Remove(child);
 
-        Methods.YGNodeRemoveChild(Handle, child.Handle);
+        YGNodeRemoveChild(Handle, child.Handle);
     }
 
     public void RemoveAllChildren()
@@ -205,7 +166,7 @@ public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConf
         // Clear the children list
         _children.Clear();
 
-        Methods.YGNodeRemoveAllChildren(Handle);
+        YGNodeRemoveAllChildren(Handle);
     }
 
     public void SetChildren(IEnumerable<Node> children)
@@ -229,7 +190,7 @@ public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConf
         }
 
         fixed (void** handlesPtr = &handles[0])
-            Methods.YGNodeSetChildren(Handle, handlesPtr, (uint)_children.Count);
+            YGNodeSetChildren(Handle, handlesPtr, (uint)_children.Count);
     }
 
     public Node? GetChild(int index)
@@ -256,115 +217,27 @@ public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConf
                 );
 
             _config = value;
-
-            Methods.YGNodeSetConfig(Handle, value == null ? null : value.Handle);
+            YGNodeSetConfig(Handle, value.Handle);
         }
     }
 
     public int ChildCount => _children.Count;
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate YGSize MeasureFuncInternalDelegate(
-        void* node,
-        float width,
-        YGMeasureMode widthMode,
-        float height,
-        YGMeasureMode heightMode
-    );
-
-    private MeasureFuncInternalDelegate? _measureFuncInternal;
-    private Func<Node, float, YGMeasureMode, float, YGMeasureMode, Size>? _measureFunc;
-
-    public Func<Node, float, YGMeasureMode, float, YGMeasureMode, Size>? MeasureFunc
-    {
-        get => _measureFunc;
-        set
-        {
-            if (_children.Count > 0)
-                throw new InvalidOperationException(
-                    "Cannot set measure function: Nodes with measure functions cannot have children."
-                );
-
-            _measureFunc = value;
-
-            if (value == null)
-            {
-                Methods.YGNodeSetMeasureFunc(Handle, null);
-                return;
-            }
-
-            // Reuse the internal function, when available
-            if (_measureFuncInternal != null)
-                return;
-
-            _measureFuncInternal = (_, w, wMode, h, hMode) =>
-                _measureFunc!(this, w, wMode, h, hMode).ToYGSize();
-
-            Methods.YGNodeSetMeasureFunc(
-                Handle,
-                (delegate* unmanaged[Cdecl]<
-                    void*,
-                    float,
-                    YGMeasureMode,
-                    float,
-                    YGMeasureMode,
-                    YGSize>)
-                    Marshal.GetFunctionPointerForDelegate(_measureFuncInternal)
-            );
-        }
-    }
-
-    public bool HasMeasureFunc => Methods.YGNodeHasMeasureFunc(Handle);
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate float BaselineFuncInternalDelegate(void* node, float width, float height);
-
-    private BaselineFuncInternalDelegate? _baselineFuncInternal;
-    private Func<Node, float, float, float>? _baselineFunc;
-
-    public Func<Node, float, float, float>? BaselineFunc
-    {
-        get => _baselineFunc;
-        set
-        {
-            _baselineFunc = value;
-
-            if (value == null)
-            {
-                Methods.YGNodeSetBaselineFunc(Handle, null);
-                return;
-            }
-
-            // Reuse the internal function, when available
-            if (_baselineFuncInternal != null)
-                return;
-
-            _baselineFuncInternal = (_, w, h) => _baselineFunc!(this, w, h);
-            Methods.YGNodeSetBaselineFunc(
-                Handle,
-                (delegate* unmanaged[Cdecl]<void*, float, float, float>)
-                    Marshal.GetFunctionPointerForDelegate(_baselineFuncInternal)
-            );
-        }
-    }
-
-    public bool HasBaselineFunc => Methods.YGNodeHasBaselineFunc(Handle);
-
     public bool IsReferenceBaseline
     {
-        get => Methods.YGNodeIsReferenceBaseline(Handle);
-        set => Methods.YGNodeSetIsReferenceBaseline(Handle, value);
+        get => YGNodeIsReferenceBaseline(Handle);
+        set => YGNodeSetIsReferenceBaseline(Handle, value);
     }
 
-    public YGNodeType Type
+    public NodeType Type
     {
-        get => Methods.YGNodeGetNodeType(Handle);
-        set => Methods.YGNodeSetNodeType(Handle, value);
+        get => YGNodeGetNodeType(Handle);
+        set => YGNodeSetNodeType(Handle, value);
     }
 
     public bool AlwaysFormsContainingBlock
     {
-        get => Methods.YGNodeGetAlwaysFormsContainingBlock(Handle);
-        set => Methods.YGNodeSetAlwaysFormsContainingBlock(Handle, value);
+        get => YGNodeGetAlwaysFormsContainingBlock(Handle);
+        set => YGNodeSetAlwaysFormsContainingBlock(Handle, value);
     }
 }

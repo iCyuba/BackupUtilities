@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using BackupUtilities.Config.Util;
+﻿using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
-using BackupUtilities.Config.Yoga.Interop;
 
 namespace BackupUtilities.Config.ConsoleUI;
 
@@ -144,9 +142,9 @@ public class TextNode : RenderableNode
     private static new Size MeasureFunc(
         Node node,
         float width,
-        YGMeasureMode widthMode,
+        MeasureMode widthMode,
         float height,
-        YGMeasureMode heightMode
+        MeasureMode heightMode
     )
     {
         if (node is not TextNode textNode)
@@ -159,19 +157,19 @@ public class TextNode : RenderableNode
         // Width mode = exactly && text is smaller than width -> return the input width
         // Width mode & height mode = exactly -> return the input width and height
         if (
-            widthMode == YGMeasureMode.YGMeasureModeUndefined
+            widthMode == MeasureMode.Undefined
             || strW < width
-            || (widthMode == heightMode && heightMode == YGMeasureMode.YGMeasureModeExactly)
+            || (widthMode == heightMode && heightMode == MeasureMode.Exactly)
         )
             return new(
                 widthMode switch
                 {
-                    YGMeasureMode.YGMeasureModeExactly => width,
+                    MeasureMode.Exactly => width,
                     _ => strW
                 },
                 heightMode switch
                 {
-                    YGMeasureMode.YGMeasureModeExactly => height,
+                    MeasureMode.Exactly => height,
                     _ => 1
                 }
             );
@@ -183,7 +181,7 @@ public class TextNode : RenderableNode
             maxLineWidth,
             heightMode switch
             {
-                YGMeasureMode.YGMeasureModeExactly => height,
+                MeasureMode.Exactly => height,
                 _ => lines.Length
             }
         );
