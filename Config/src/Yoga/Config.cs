@@ -2,7 +2,7 @@ using BackupUtilities.Config.Yoga.Interop;
 
 namespace BackupUtilities.Config.Yoga;
 
-public unsafe class Config : YogaHandle
+public unsafe class Config : Base
 {
     private bool _disposed = false;
 

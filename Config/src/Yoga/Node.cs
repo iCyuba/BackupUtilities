@@ -12,9 +12,8 @@ namespace BackupUtilities.Config.Yoga;
 /// But please do not use the C API directly, as some additional logic is handled here!
 /// (For example, changing the children using the C api would not get detected by the C# wrapper)
 /// </summary>
-/// <param name="handle"></param>
-public unsafe partial class Node(Config config)
-    : YogaHandle(Methods.YGNodeNewWithConfig(config.Handle))
+/// <param name="config">The Yoga configuration to use</param>
+public unsafe partial class Node(Config config) : Base(Methods.YGNodeNewWithConfig(config.Handle))
 {
     /// <summary>
     /// The children of this node. solely for reference counting.
@@ -274,9 +273,9 @@ public unsafe partial class Node(Config config)
     );
 
     private MeasureFuncInternalDelegate? _measureFuncInternal;
-    private Func<Node, float, YGMeasureMode, float, YGMeasureMode, YGSize>? _measureFunc;
+    private Func<Node, float, YGMeasureMode, float, YGMeasureMode, Size>? _measureFunc;
 
-    public Func<Node, float, YGMeasureMode, float, YGMeasureMode, YGSize>? MeasureFunc
+    public Func<Node, float, YGMeasureMode, float, YGMeasureMode, Size>? MeasureFunc
     {
         get => _measureFunc;
         set
@@ -299,7 +298,7 @@ public unsafe partial class Node(Config config)
                 return;
 
             _measureFuncInternal = (_, w, wMode, h, hMode) =>
-                _measureFunc!(this, w, wMode, h, hMode);
+                _measureFunc!(this, w, wMode, h, hMode).ToYGSize();
 
             Methods.YGNodeSetMeasureFunc(
                 Handle,

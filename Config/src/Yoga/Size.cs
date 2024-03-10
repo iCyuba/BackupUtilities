@@ -1,7 +1,8 @@
+using BackupUtilities.Config.Yoga.Interop;
+
 namespace BackupUtilities.Config.Yoga;
 
-public struct Size
+public record Size(float Width, float Height)
 {
-    public float Width;
-    public float Height;
+    public YGSize ToYGSize() => new() { width = Width, height = Height };
 }
