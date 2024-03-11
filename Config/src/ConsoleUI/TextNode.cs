@@ -15,6 +15,7 @@ public class TextNode : RenderableNode
     public string Text { get; set; }
 
     public TextNode(string text)
+        : base()
     {
         Text = text;
 
@@ -51,6 +52,9 @@ public class TextNode : RenderableNode
     /// <returns>The wrapped text and the maximum line width</returns>
     private (string[] lines, int width) WrapText(int width)
     {
+        if (width == 0)
+            return ([], 0);
+
         List<string> lines = [];
 
         int maxLineWidth = 0;
@@ -187,7 +191,7 @@ public class TextNode : RenderableNode
         );
     }
 
-    public override string[,] Render()
+    protected override RenderOutput Render()
     {
         int width = (int)ComputedWidth;
         int height = (int)ComputedHeight;
@@ -213,7 +217,7 @@ public class TextNode : RenderableNode
                 }
             }
 
-        // Text nodes can't have children, so the base method isn't called here
-        return output;
+        // Text nodes can't have children, so the base method isn't called here.
+        return new(output, (0, 0), []);
     }
 }

@@ -1,3 +1,4 @@
+using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.ConsoleUI;
@@ -8,14 +9,10 @@ public class RootNode : RenderableNode
     public static new PositionType PositionType => PositionType.Relative;
 
     public RootNode()
+        : base()
     {
         // Set position to relative
         base.PositionType = PositionType.Relative;
-    }
-
-    public override string[,] Render()
-    {
-        throw new NotImplementedException();
     }
 
     public void Print()
@@ -25,26 +22,14 @@ public class RootNode : RenderableNode
 
         CalculateLayout(width, height);
 
-        if (GetChild(0) is not RenderableNode renderableNode)
-            throw new InvalidOperationException("Root node must have a renderable child");
-
-        string[,] screenBuffer = renderableNode.Render();
-
-        // Expand the buffer to the size of the console
-        if (screenBuffer.GetLength(0) < height || screenBuffer.GetLength(1) < width)
-        {
-            string[,] newBuffer = new string[height, width];
-
-            for (int x = 0; x < screenBuffer.GetLength(1); x++)
-            for (int y = 0; y < screenBuffer.GetLength(0); y++)
-                newBuffer[y, x] = screenBuffer[y, x];
-
-            screenBuffer = newBuffer;
-        }
+        var render = Render();
+        string[,] output = render
+            .Output
+            .Expand(width, height, (-render.Offsets.x, -render.Offsets.y));
 
         Console.SetCursorPosition(0, 0);
 
-        foreach (var character in screenBuffer)
+        foreach (var character in output)
             Console.Write(character ?? " ");
     }
 }
