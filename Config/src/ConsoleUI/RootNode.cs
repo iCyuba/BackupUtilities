@@ -11,7 +11,7 @@ public class RootNode : RenderableNode
     public RootNode()
         : base()
     {
-        // Set position to relative
+        // Set position to relative (if this wasn't set, absolutely positioned nodes would not render at all)
         base.PositionType = PositionType.Relative;
     }
 
@@ -20,7 +20,9 @@ public class RootNode : RenderableNode
         int width = Console.WindowWidth;
         int height = Console.WindowHeight;
 
-        CalculateLayout(width, height);
+        // If the layout is dirty, recalculate it
+        if (IsDirty)
+            CalculateLayout(width, height);
 
         var render = Render();
         string[,] output = render

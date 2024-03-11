@@ -10,6 +10,16 @@ public abstract class RenderableNode : Node
     /// </summary>
     private static readonly Yoga.Config _consoleConfig = new() { UseWebDefaults = true };
 
+    /// <summary>
+    /// Scroll offsets, when scrolling is enabled.
+    /// </summary>
+    public (int x, int y) ScrollOffsets { get; set; }
+
+    /// <summary>
+    /// Is the absolute position fixed? (Only works with position type absolute)
+    /// </summary>
+    public bool IsFixed { get; set; } = false;
+
     protected RenderableNode()
         : base(_consoleConfig) { }
 
@@ -38,7 +48,16 @@ public abstract class RenderableNode : Node
         (int x, int y) offsets = (0, 0);
         (int width, int height) = ((int)ComputedWidth, (int)ComputedHeight);
 
-        Queue<(Node, RenderOutput)> renders = [];
+        Queue<(RenderableNode, RenderOutput)> renders = [];
+
+        // Get the max overflow
+        (int overflowScreenX, int overflowScreenY) =
+            Overflow == Overflow.Visible ? (Console.WindowWidth, Console.WindowHeight) : (0, 0);
+
+        int overflowXPos = (int)ComputedWidth + (int)ComputedLeft + overflowScreenX;
+        int overflowXNeg = (int)ComputedLeft - overflowScreenX;
+        int overflowYPos = (int)ComputedHeight + (int)ComputedTop + overflowScreenY;
+        int overflowYNeg = (int)ComputedTop - overflowScreenY;
 
         // Render the children
         for (int i = 0; i < ChildCount; i++)
@@ -52,27 +71,30 @@ public abstract class RenderableNode : Node
                 continue;
             }
 
-            // Render the child and its children
-            var render = child.Render();
+            // If the child is offscreen, don't render it
+            // This could make it so overflowing nodes that have a negative margin don't render,
+            // but render costs for that are high and it's not a common use case
 
-            // Max the offsets and sizes
-            offsets.x = Math.Max(offsets.x, render.Offsets.x - (int)child.ComputedLeft);
-            offsets.y = Math.Max(offsets.y, render.Offsets.y - (int)child.ComputedTop);
+            bool childFixed = child.IsFixed && child.PositionType == PositionType.Absolute;
+            (int scrollX, int scrollY) =
+                childFixed || Overflow != Overflow.Scroll ? (0, 0) : ScrollOffsets;
 
-            width = Math.Max(
-                width,
-                render.Output.GetLength(1) - render.Offsets.x + (int)child.ComputedLeft
-            );
-            height = Math.Max(
-                height,
-                render.Output.GetLength(0) - render.Offsets.y + (int)child.ComputedTop
-            );
+            if (
+                child.ComputedLeft - scrollX > overflowXPos
+                || child.ComputedTop - scrollY > overflowYPos
+                || child.ComputedLeft + child.ComputedWidth - scrollX < overflowXNeg
+                || child.ComputedTop + child.ComputedHeight - scrollY < overflowYNeg
+            )
+                continue;
 
-            // Add the absolute nodes, if any
-            absolute.AddRange(render.Absolute);
+            RenderChild(child);
+        }
 
-            // Queue the render for merging
-            renders.Enqueue((child, render));
+        // If the position type isn't static, we can render absolutely positioned nodes here
+        if (PositionType != PositionType.Static)
+        {
+            foreach (var child in absolute)
+                RenderChild(child);
         }
 
         // Merge the child renders into the main output
@@ -82,15 +104,48 @@ public abstract class RenderableNode : Node
         while (renders.Count > 0)
         {
             var (child, render) = renders.Dequeue();
+            bool childFixed = child.IsFixed && child.PositionType == PositionType.Absolute;
+
+            (int scrollX, int scrollY) =
+                childFixed || Overflow != Overflow.Scroll ? (0, 0) : ScrollOffsets;
+
             output.Merge(
                 render.Output,
                 (
-                    (int)child.ComputedLeft - render.Offsets.x + offsets.x,
-                    (int)child.ComputedTop - render.Offsets.y + offsets.y
+                    (int)child.ComputedLeft - render.Offsets.x + offsets.x - scrollX,
+                    (int)child.ComputedTop - render.Offsets.y + offsets.y - scrollY
                 )
             );
         }
 
         return new(output, offsets, absolute);
+
+        void RenderChild(RenderableNode child)
+        {
+            // Render the child and its children
+            var render = child.Render();
+
+            // Overflow: Visible -> compute the offsets and sizes
+            if (Overflow == Overflow.Visible)
+            {
+                offsets.x = Math.Max(offsets.x, render.Offsets.x - (int)child.ComputedLeft);
+                offsets.y = Math.Max(offsets.y, render.Offsets.y - (int)child.ComputedTop);
+
+                width = Math.Max(
+                    width,
+                    render.Output.GetLength(1) - render.Offsets.x + (int)child.ComputedLeft
+                );
+                height = Math.Max(
+                    height,
+                    render.Output.GetLength(0) - render.Offsets.y + (int)child.ComputedTop
+                );
+            }
+
+            // Add the absolute nodes, if any
+            absolute.AddRange(render.Absolute);
+
+            // Queue the render for merging
+            renders.Enqueue((child, render));
+        }
     }
 }

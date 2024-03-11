@@ -1,4 +1,5 @@
-﻿using BackupUtilities.Config.ConsoleUI;
+﻿using System.Runtime.InteropServices;
+using BackupUtilities.Config.ConsoleUI;
 using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config;
@@ -9,39 +10,60 @@ internal static class Program
     {
         Console.Clear();
 
-        RootNode root = new() { JustifyContent = Justify.SpaceEvenly, AlignItems = Align.Center };
-        FancyNode node = new() { Width = new(Unit.Percent, 50), Height = new(Unit.Percent, 50) };
-        FancyNode node2 = new() { Width = new(Unit.Percent, 50), Height = new(Unit.Percent, 50) };
+        RootNode root = new() { FlexWrap = Wrap.Wrap, Overflow = Overflow.Scroll };
+        root.SetGap(Gutter.All, 1);
 
-        node2.SetMargin(Edge.Top, 17);
-        node2.SetMargin(Edge.Left, -15);
+        // Add 5k nodes to the root node
+        for (int i = 0; i < 5000; i++)
+            root.InsertChild(new FancyNode() { Width = new(10), Height = new(i % 25 + 2) }, i);
 
-        root.InsertChild(node, 0);
-        node.InsertChild(node2, 0);
+        // Add the modal
+        var modal = new FancyNode()
+        {
+            PositionType = PositionType.Absolute,
+            IsFixed = true,
+            AlignItems = Align.Center,
+            JustifyContent = Justify.Center
+        };
+        modal.SetPosition(Edge.All, 10);
 
-        TextNode text =
-            new(
-                "Hello, World! Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-            )
-            {
-                Width = new(Unit.Percent, 35)
-            };
-        text.SetMargin(Edge.Top, -5);
-        text.SetMargin(Edge.Left, 65);
-        text.SetMargin(Edge.Right, -65);
+        var modalText = new TextNode("This is my amazing modal");
 
-        TextNode text2 =
-            new("Hello, World! Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
+        modal.InsertChild(modalText, 0);
+        root.InsertChild(modal, 0);
 
-        text2.SetMargin(Edge.Top, -3);
-        text2.SetMargin(Edge.Left, -25);
-        text2.SetMargin(Edge.Right, 25);
-
-        node.InsertChild(text, 1);
-        node2.InsertChild(text2, 0);
+        // Disable cursor
+        Console.CursorVisible = false;
 
         // Print the root node
         root.Print();
+        Console.ReadKey(true);
+
+        // This doesn't work on Windows, I'm sorry to all 0 of my Windows users
+        PosixSignalRegistration.Create(
+            PosixSignal.SIGWINCH,
+            _ =>
+            {
+                root.CalculateLayout(Console.WindowWidth, Console.WindowHeight);
+                root.Print();
+            }
+        );
+
+        // Scrolllllll
+        while (true)
+        {
+            root.ScrollOffsets = new(0, root.ScrollOffsets.y + 1);
+
+            // This is a workaround, because if a layout happens on another thread,
+            // this may throw an index out of range exception
+            try
+            {
+                root.Print();
+            }
+            catch { }
+
+            // Thread.Sleep(50);
+        }
 
         // Freeing the nodes isn't necessary, but why not
         root.FreeRecursive();
