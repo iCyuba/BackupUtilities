@@ -26,7 +26,7 @@ public class RootNode : RenderableNode
 
         var render = Render();
         string[,] output = render
-            .Output
+            .Buffer
             .Expand(width, height, (-render.Offsets.x, -render.Offsets.y));
 
         Console.SetCursorPosition(0, 0);

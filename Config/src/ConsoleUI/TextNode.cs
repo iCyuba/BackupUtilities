@@ -14,6 +14,16 @@ public class TextNode : RenderableNode
     /// </summary>
     public string Text { get; set; }
 
+    public Color? Color { get; set; }
+
+    public bool Bold { get; set; }
+
+    public bool Italic { get; set; }
+
+    public bool Underline { get; set; }
+
+    public bool Strikethrough { get; set; }
+
     public TextNode(string text)
         : base()
     {
@@ -198,26 +208,40 @@ public class TextNode : RenderableNode
 
         (string[] lines, _) = WrapText(width);
 
-        string[,] output = new string[lines.Length, width];
+        var buffer = new string[lines.Length, width];
 
         for (int y = 0; y < lines.Length; y++)
-            if (y >= lines.Length)
-                for (int x = 0; x < width; x++)
-                    output[y, x] = " ";
-            else
+            if (y < lines.Length)
             {
                 string line = lines[y];
+
                 int x = 0;
 
                 foreach (char c in line)
                 {
-                    output[y, x] += c.ToString();
+                    if (Color != null)
+                        buffer[y, x] += Color?.ToANSI(ConsoleUI.Color.Target.Foreground);
 
-                    x += c.Width();
+                    if (Bold)
+                        buffer[y, x] += "\x1b[1m";
+
+                    if (Italic)
+                        buffer[y, x] += "\x1b[3m";
+
+                    if (Underline)
+                        buffer[y, x] += "\x1b[4m";
+
+                    if (Strikethrough)
+                        buffer[y, x] += "\x1b[9m";
+
+                    buffer[y, x] += c.ToString();
+                    buffer[y, x] += "\x1b[0m";
+
+                    x += int.Max(0, c.Width());
                 }
             }
 
         // Text nodes can't have children, so the base method isn't called here.
-        return new(output, (0, 0), []);
+        return new(buffer, (0, 0), []);
     }
 }

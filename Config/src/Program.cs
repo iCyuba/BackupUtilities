@@ -27,7 +27,15 @@ internal static class Program
         };
         modal.SetPosition(Edge.All, 10);
 
-        var modalText = new TextNode("This is my amazing modal");
+        var modalText = new TextNode("This is my amazing modal")
+        {
+            Width = new(15),
+            Color = Color.FromHex("#c50282"),
+            Bold = true,
+            Italic = true,
+            Underline = true,
+            Strikethrough = true
+        };
 
         modal.InsertChild(modalText, 0);
         root.InsertChild(modal, 0);

@@ -24,7 +24,7 @@ public abstract class RenderableNode : Node
         : base(_consoleConfig) { }
 
     protected record struct RenderOutput(
-        string[,] Output,
+        string[,] Buffer,
         (int x, int y) Offsets,
         List<RenderableNode> Absolute
     )
@@ -97,8 +97,8 @@ public abstract class RenderableNode : Node
                 RenderChild(child);
         }
 
-        // Merge the child renders into the main output
-        string[,] output = new string[height + offsets.y, width + offsets.x];
+        // Merge the child renders into the main buffer
+        var buffer = new string[height + offsets.y, width + offsets.x];
 
         // Merge the children
         while (renders.Count > 0)
@@ -109,8 +109,8 @@ public abstract class RenderableNode : Node
             (int scrollX, int scrollY) =
                 childFixed || Overflow != Overflow.Scroll ? (0, 0) : ScrollOffsets;
 
-            output.Merge(
-                render.Output,
+            buffer.Merge(
+                render.Buffer,
                 (
                     (int)child.ComputedLeft - render.Offsets.x + offsets.x - scrollX,
                     (int)child.ComputedTop - render.Offsets.y + offsets.y - scrollY
@@ -118,7 +118,7 @@ public abstract class RenderableNode : Node
             );
         }
 
-        return new(output, offsets, absolute);
+        return new(buffer, offsets, absolute);
 
         void RenderChild(RenderableNode child)
         {
@@ -133,11 +133,11 @@ public abstract class RenderableNode : Node
 
                 width = Math.Max(
                     width,
-                    render.Output.GetLength(1) - render.Offsets.x + (int)child.ComputedLeft
+                    render.Buffer.GetLength(1) - render.Offsets.x + (int)child.ComputedLeft
                 );
                 height = Math.Max(
                     height,
-                    render.Output.GetLength(0) - render.Offsets.y + (int)child.ComputedTop
+                    render.Buffer.GetLength(0) - render.Offsets.y + (int)child.ComputedTop
                 );
             }
 
