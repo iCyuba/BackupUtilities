@@ -208,9 +208,9 @@ public class TextNode : RenderableNode
 
         (string[] lines, _) = WrapText(width);
 
-        var buffer = new string[lines.Length, width];
+        var buffer = new string[height, width];
 
-        for (int y = 0; y < lines.Length; y++)
+        for (int y = 0; y < height; y++)
             if (y < lines.Length)
             {
                 string line = lines[y];
@@ -240,6 +240,10 @@ public class TextNode : RenderableNode
                     x += int.Max(0, c.Width());
                 }
             }
+
+        if (lines.Length > height)
+            for (int x = 1; x <= int.Min(3, width); x++)
+                buffer[height - 1, width - x] = ".";
 
         // Text nodes can't have children, so the base method isn't called here.
         return new(buffer, (0, 0), []);
