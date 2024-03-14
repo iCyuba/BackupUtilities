@@ -1,12 +1,12 @@
 using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
-namespace BackupUtilities.Config.ConsoleUI;
+namespace BackupUtilities.Config.Nodes;
 
 public class RootNode : RenderableNode
 {
     // Readonly properties for the root node
-    public static new PositionType PositionType => PositionType.Relative;
+    public new static PositionType PositionType => PositionType.Relative;
 
     public RootNode()
         : base()

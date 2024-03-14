@@ -1,10 +1,12 @@
 ﻿using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
-namespace BackupUtilities.Config.ConsoleUI;
+namespace BackupUtilities.Config.Nodes;
 
 public class TextNode : RenderableNode
 {
+    private string _text;
+
     /// <summary>
     /// The text to display in the console.
     ///
@@ -12,7 +14,15 @@ public class TextNode : RenderableNode
     ///
     /// Note: ANSI escape codes are not supported, and will break due to line breaking.
     /// </summary>
-    public string Text { get; set; }
+    public string Text
+    {
+        get => _text;
+        set
+        {
+            _text = value;
+            MarkDirty();
+        }
+    }
 
     public Color? Color { get; set; }
 
@@ -27,7 +37,7 @@ public class TextNode : RenderableNode
     public TextNode(string text)
         : base()
     {
-        Text = text;
+        _text = text;
 
         // Set the measure function
         base.MeasureFunc = MeasureFunc;
@@ -220,8 +230,7 @@ public class TextNode : RenderableNode
                 foreach (char c in line)
                 {
                     if (Color != null)
-                        buffer[y, x] += Color?.ToANSI(ConsoleUI.Color.Target.Foreground);
-
+                        buffer[y, x] += Color?.ToANSI(Util.Color.Target.Foreground);
                     if (Bold)
                         buffer[y, x] += "\x1b[1m";
 

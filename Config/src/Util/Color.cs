@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace BackupUtilities.Config.ConsoleUI;
+namespace BackupUtilities.Config.Util;
 
 public readonly partial struct Color(byte r, byte g, byte b)
 {

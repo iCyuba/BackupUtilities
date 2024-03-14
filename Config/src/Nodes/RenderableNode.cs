@@ -1,7 +1,7 @@
 using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
-namespace BackupUtilities.Config.ConsoleUI;
+namespace BackupUtilities.Config.Nodes;
 
 public abstract class RenderableNode : Node
 {
