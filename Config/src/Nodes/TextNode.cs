@@ -1,4 +1,4 @@
-﻿using BackupUtilities.Config.Util;
+using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Nodes;
@@ -25,6 +25,8 @@ public class TextNode : RenderableNode
     }
 
     public Color? Color { get; set; }
+
+    public Color? BackgroundColor { get; set; }
 
     public bool Bold { get; set; }
 
@@ -218,43 +220,34 @@ public class TextNode : RenderableNode
 
         (string[] lines, _) = WrapText(width);
 
-        var buffer = new string[height, width];
+        var buffer = new Character[height, width];
 
-        for (int y = 0; y < height; y++)
-            if (y < lines.Length)
+        for (int y = 0; y < int.Min(height, lines.Length); y++)
+        {
+            string line = lines[y];
+            int x = 0;
+
+            foreach (char c in line)
             {
-                string line = lines[y];
+                buffer[y, x].Foreground = Color;
+                buffer[y, x].Background = BackgroundColor;
+                buffer[y, x].Bold = Bold;
+                buffer[y, x].Italic = Italic;
+                buffer[y, x].Underline = Underline;
+                buffer[y, x].Strikethrough = Strikethrough;
 
-                int x = 0;
+                buffer[y, x].Value ??= "";
+                buffer[y, x].Value += c;
 
-                foreach (char c in line)
-                {
-                    if (Color != null)
-                        buffer[y, x] += Color?.ToANSI(Util.Color.Target.Foreground);
-                    if (Bold)
-                        buffer[y, x] += "\x1b[1m";
-
-                    if (Italic)
-                        buffer[y, x] += "\x1b[3m";
-
-                    if (Underline)
-                        buffer[y, x] += "\x1b[4m";
-
-                    if (Strikethrough)
-                        buffer[y, x] += "\x1b[9m";
-
-                    buffer[y, x] += c.ToString();
-                    buffer[y, x] += "\x1b[0m";
-
-                    x += int.Max(0, c.Width());
-                }
+                x += int.Max(0, c.Width());
             }
+        }
 
         if (lines.Length > height)
             for (int x = 1; x <= int.Min(3, width); x++)
-                buffer[height - 1, width - x] = ".";
+                buffer[height - 1, width - x].Value = ".";
 
-        // Text nodes can't have children, so the base method isn't called here.
+        // Value nodes can't have children, so the base method isn't called here.
         return new(buffer, (0, 0), []);
     }
 }

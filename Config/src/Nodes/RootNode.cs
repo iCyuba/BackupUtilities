@@ -25,13 +25,15 @@ public class RootNode : RenderableNode
             CalculateLayout(width, height);
 
         var render = Render();
-        string[,] output = render
-            .Buffer
-            .Expand(width, height, (-render.Offsets.x, -render.Offsets.y));
+        var buffer = render.Buffer.Expand(width, height, (-render.Offsets.x, -render.Offsets.y));
 
         Console.SetCursorPosition(0, 0);
 
-        foreach (var character in output)
-            Console.Write(character ?? " ");
+        Character? last = null;
+        foreach (var character in buffer)
+        {
+            Console.Write(character.ToANSIString(last));
+            last = character;
+        }
     }
 }

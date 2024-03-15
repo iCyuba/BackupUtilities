@@ -1,9 +1,12 @@
+using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Nodes;
 
 public class FancyNode : RenderableNode
 {
+    public Color? Color { get; set; }
+
     protected override RenderOutput Render()
     {
         var render = base.Render();
@@ -14,17 +17,23 @@ public class FancyNode : RenderableNode
         float top = GetComputedBorder(Edge.Top);
         float bottom = GetComputedBorder(Edge.Bottom);
 
-        for (int x = 0; x < ComputedWidth; x++)
-        for (int y = 0; y < ComputedHeight; y++)
-            if (
-                x - left < 0
-                || x >= ComputedWidth - right
-                || y - top < 0
-                || y == ComputedHeight - bottom
-            )
-            {
-                render.Buffer[y + render.Offsets.y, x + render.Offsets.x] = "█";
-            }
+        // Size
+        float width = ComputedWidth;
+        float height = ComputedHeight;
+
+        for (int x = 0; x < width; x++)
+        for (int y = 0; y < height; y++)
+        {
+            int xx = x + render.Offsets.x;
+            int yy = y + render.Offsets.y;
+
+            if ((top >= 1 || left >= 1) && x == 0 && y == 0)
+                render.Buffer[yy, xx] = new("") { Foreground = Color };
+            else if ((bottom >= 1 || right >= 1) && x == width - 1 && y == height - 1)
+                render.Buffer[yy, xx] = new("") { Foreground = Color };
+            else
+                render.Buffer[yy, xx].Background ??= Color;
+        }
 
         return render;
     }

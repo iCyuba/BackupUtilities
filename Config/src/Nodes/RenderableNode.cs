@@ -24,13 +24,10 @@ public abstract class RenderableNode : Node
         : base(_consoleConfig) { }
 
     protected record struct RenderOutput(
-        string[,] Buffer,
+        Character[,] Buffer,
         (int x, int y) Offsets,
         List<RenderableNode> Absolute
-    )
-    {
-        public static RenderOutput Empty => new(new string[0, 0], (0, 0), []);
-    }
+    );
 
     /// <summary>
     /// Render to a 2D string array, X and Y offsets, and a list of absolute nodes that need to be rendered separately.
@@ -40,7 +37,7 @@ public abstract class RenderableNode : Node
     {
         // Skip text nodes (this isn't proper OOP, but idk anymore)
         if (Type == NodeType.Text)
-            return RenderOutput.Empty;
+            return new(new Character[0, 0], (0, 0), []);
 
         List<RenderableNode> absolute = [];
 
@@ -98,7 +95,7 @@ public abstract class RenderableNode : Node
         }
 
         // Merge the child renders into the main buffer
-        var buffer = new string[height + offsets.y, width + offsets.x];
+        var buffer = new Character[height + offsets.y, width + offsets.x];
 
         // Merge the children
         while (renders.Count > 0)
