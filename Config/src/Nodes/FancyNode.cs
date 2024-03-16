@@ -27,10 +27,12 @@ public class FancyNode : RenderableNode
             int xx = x + render.Offsets.x;
             int yy = y + render.Offsets.y;
 
+            render.Buffer[yy, xx].Foreground ??= Color;
+
             if ((top >= 1 || left >= 1) && x == 0 && y == 0)
-                render.Buffer[yy, xx] = new("") { Foreground = Color };
+                render.Buffer[yy, xx].Value = "";
             else if ((bottom >= 1 || right >= 1) && x == width - 1 && y == height - 1)
-                render.Buffer[yy, xx] = new("") { Foreground = Color };
+                render.Buffer[yy, xx].Value = "";
             else
                 render.Buffer[yy, xx].Background ??= Color;
         }

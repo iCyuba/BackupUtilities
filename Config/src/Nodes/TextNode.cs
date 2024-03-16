@@ -222,12 +222,24 @@ public class TextNode : RenderableNode
 
         var buffer = new Character[height, width];
 
-        for (int y = 0; y < int.Min(height, lines.Length); y++)
+        for (int y = 0; y < height; y++)
         {
-            string line = lines[y];
-            int x = 0;
+            if (y < lines.Length)
+            {
+                string line = lines[y];
+                int x = 0;
 
-            foreach (char c in line)
+                foreach (char c in line)
+                {
+                    buffer[y, x].Value ??= "";
+                    buffer[y, x].Value += c;
+
+                    x += int.Max(0, c.Width());
+                }
+            }
+
+            // Set the styles after the text has been rendered
+            for (int x = 0; x < width; x++)
             {
                 buffer[y, x].Foreground = Color;
                 buffer[y, x].Background = BackgroundColor;
@@ -235,11 +247,6 @@ public class TextNode : RenderableNode
                 buffer[y, x].Italic = Italic;
                 buffer[y, x].Underline = Underline;
                 buffer[y, x].Strikethrough = Strikethrough;
-
-                buffer[y, x].Value ??= "";
-                buffer[y, x].Value += c;
-
-                x += int.Max(0, c.Width());
             }
         }
 

@@ -48,4 +48,11 @@ public struct Character(string value = "")
 
         return ansi + ToString();
     }
+
+    public static Character MergeCharacters(Character bottom, Character top)
+    {
+        top.Background ??= bottom.Background;
+
+        return top;
+    }
 }

@@ -10,6 +10,24 @@ public partial record Color(byte R, byte G, byte B)
         Background = 48
     }
 
+    public readonly struct Group
+    {
+        public Color Light { get; init; }
+        public Color Regular { get; init; }
+        public Color Dark { get; init; }
+    }
+
+    public static Color White { get; } = FromHex("#fff");
+
+    // Colors from https://tailwindcss.com/docs/customizing-colors
+    public static Group Pink { get; } =
+        new()
+        {
+            Light = FromHex("#f472b6"),
+            Regular = FromHex("#ec4899"),
+            Dark = FromHex("#db2777")
+        };
+
     [GeneratedRegex(@"^[0-9A-F]{3}$|^[0-9A-F]{6}$", RegexOptions.IgnoreCase)]
     private static partial Regex HexRegex();
 

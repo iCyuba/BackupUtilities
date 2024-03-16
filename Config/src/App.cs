@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
+using BackupUtilities.Config.Components.Views;
 using BackupUtilities.Config.Nodes;
-using BackupUtilities.Config.Views;
 
 namespace BackupUtilities.Config;
 
@@ -17,6 +17,7 @@ public class App
 
         _running = true;
 
+        Console.Title = "Backup Utilities: Config Editor";
         Console.ResetColor();
         Console.CursorVisible = false;
         Console.Clear();
@@ -60,7 +61,7 @@ public class App
         _root.SetChildren([view.Node]);
     }
 
-    private void CloseView(object? sender, EventArgs e)
+    private void CloseView()
     {
         if (_views.TryPop(out var view))
             view.Closed -= CloseView;

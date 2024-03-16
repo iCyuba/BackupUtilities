@@ -51,7 +51,7 @@ public static class ScreenBuffer
             if (xx < 0 || yy < 0 || xx >= buffer.GetLength(1) || yy >= buffer.GetLength(0))
                 continue;
 
-            buffer[yy, xx] = other[y, x];
+            buffer[yy, xx] = Character.MergeCharacters(buffer[yy, xx], other[y, x]);
         }
     }
 }
