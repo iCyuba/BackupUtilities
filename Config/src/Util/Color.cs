@@ -17,6 +17,8 @@ public partial record Color(byte R, byte G, byte B)
         public Color Dark { get; init; }
     }
 
+    private static bool _force8Bit = Environment.GetCommandLineArgs().Contains("--8bit");
+
     public static Color White { get; } = FromHex("#fff");
 
     // Colors from https://tailwindcss.com/docs/customizing-colors
@@ -52,5 +54,24 @@ public partial record Color(byte R, byte G, byte B)
 
     public override string ToString() => $"#{R:X2}{G:X2}{B:X2}";
 
-    public string ToANSIString(Target target) => $"\x1b[{(int)target};2;{R};{G};{B}m";
+    private byte To8Bit()
+    {
+        if (R == G && G == B)
+            if (R == 0)
+                return 16;
+            else if (R == 255)
+                return 255;
+            else
+                return (byte)(232 + R / 255f * 24);
+
+        // 255 / 5 => 51
+        return (byte)(16 + (R / 51 * 36) + (G / 51 * 6) + (B / 51));
+    }
+
+    private string To8BitANSIString(Target t) => $"\x1b[{(int)t};5;{To8Bit()}m";
+
+    private string To24BitANSIString(Target t) => $"\x1b[{(int)t};2;{R};{G};{B}m";
+
+    public string ToANSIString(Target t) =>
+        _force8Bit ? To8BitANSIString(t) : $"{To8BitANSIString(t)}{To24BitANSIString(t)}";
 }
