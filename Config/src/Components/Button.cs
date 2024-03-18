@@ -1,58 +1,67 @@
+using BackupUtilities.Config.Nodes;
 using BackupUtilities.Config.Util;
 
 namespace BackupUtilities.Config.Components;
 
-public class Button : BaseComponentWrapper, IInteractive
+public class Button : BaseInteractive
 {
+    public enum ButtonStyle
+    {
+        Alternative,
+        Regular,
+    }
+
     public event Action? Clicked;
 
-    private bool _isFocused;
-
-    public bool IsFocused
+    private Color.Group _color = Util.Color.Primary;
+    public Color.Group Color
     {
-        get => _isFocused;
+        get => _color;
         set
         {
-            _isFocused = value;
+            _color = value;
             UpdateStyle();
         }
     }
 
-    private readonly Label.Content _icon;
-    private readonly Label.Content _text;
+    public ButtonStyle Style => (ButtonStyle)_text.Style;
 
-    private Label Label => (Label)Component;
+    protected override IEnumerable<IComponent> SubComponents => [_label, _icon, _text];
 
-    public Button(string icon, string text)
-        : base(new Label())
+    private readonly Label _label;
+    private readonly Label.TextContent _icon;
+    private readonly Label.TextContent _text;
+
+    public override RenderableNode Node => _label.Node;
+
+    public Button(string icon, string text, ButtonStyle style = ButtonStyle.Regular)
     {
         _icon = new(icon);
-        _text = new(text);
+        _text = new(text) { Style = (Label.Content.ContentStyle)style };
+        _label = new() { Children = [_icon, _text], Gap = true };
 
+        Focus += UpdateStyle;
+        Blur += UpdateStyle;
         UpdateStyle();
 
-        Label.Children = [_icon, _text];
+        _label.Children = [_icon, _text];
     }
 
-    public void HandleInput(ConsoleKeyInfo key)
+    public override void HandleInput(ConsoleKeyInfo key)
     {
-        if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Spacebar)
+        if (key.Key is ConsoleKey.Enter or ConsoleKey.Spacebar)
             Clicked?.Invoke();
     }
 
     private void UpdateStyle()
     {
-        if (_isFocused)
-        {
-            _icon.BackgroundColor = Color.Pink.Regular;
-            _text.BackgroundColor = Color.Pink.Dark;
-            _text.Bold = true;
-        }
-        else
-        {
-            _icon.BackgroundColor = Color.Pink.Light;
-            _text.BackgroundColor = Color.Pink.Regular;
-            _text.Bold = false;
-        }
+        _text.Bold = IsFocused || Style == ButtonStyle.Alternative;
+        _text.Color = Style == ButtonStyle.Alternative ? Util.Color.Slate.Dark : Util.Color.White;
+        _text.BackgroundColor =
+            Style == ButtonStyle.Alternative ? null : (IsFocused ? Color.Dark : Color.Regular);
+
+        _icon.BackgroundColor = IsFocused
+            ? (Style == ButtonStyle.Alternative ? Color.Dark : Color.Regular)
+            : (Style == ButtonStyle.Alternative ? Util.Color.Slate.Light : Color.Light);
     }
 }

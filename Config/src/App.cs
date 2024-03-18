@@ -1,14 +1,19 @@
 using System.Runtime.InteropServices;
 using BackupUtilities.Config.Components.Views;
+using BackupUtilities.Config.Components.Windows;
 using BackupUtilities.Config.Nodes;
 
 namespace BackupUtilities.Config;
 
 public class App
 {
+    public event Action? WindowChange;
+
     private readonly RootNode _root = new();
-    private readonly Stack<IView> _views = [];
+    private readonly Stack<IWindow> _windows = [];
     private bool _running;
+
+    public IWindow? Window => _windows.Count > 0 ? _windows.Peek() : null;
 
     public void Run()
     {
@@ -18,8 +23,8 @@ public class App
         _running = true;
 
         Console.Title = "Backup Utilities: Config Editor";
-        Console.ResetColor();
         Console.CursorVisible = false;
+        Console.ResetColor();
         Console.Clear();
 
         // Handle screen resizing
@@ -35,7 +40,7 @@ public class App
         );
 #pragma warning restore CA1416
 
-        while (_views.TryPeek(out var view))
+        while (_windows.TryPeek(out var window))
         {
             // This is a workaround, because if a layout happens on another thread,
             // this may throw an index out of range exception
@@ -46,24 +51,31 @@ public class App
             catch { }
 
             var key = Console.ReadKey(true);
-            view.HandleInput(key);
+            window.HandleInput(key);
         }
 
         resizeRegistration.Dispose();
         _running = false;
     }
 
-    public void SetView(IView view)
+    public void SetWindow(IWindow window)
     {
-        _views.Push(view);
+        _windows.Push(window);
 
-        view.Closed += CloseView;
-        _root.SetChildren([view.Node]);
+        window.Close += CloseWindow;
+        _root.SetChildren([window.Node]);
+
+        WindowChange?.Invoke();
     }
 
-    private void CloseView()
+    private void CloseWindow()
     {
-        if (_views.TryPop(out var view))
-            view.Closed -= CloseView;
+        if (_windows.TryPop(out var window))
+            window.Close -= CloseWindow;
+
+        if (_windows.TryPeek(out var current))
+            _root.SetChildren([current.Node]);
+
+        WindowChange?.Invoke();
     }
 }

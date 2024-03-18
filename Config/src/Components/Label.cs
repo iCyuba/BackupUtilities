@@ -4,9 +4,59 @@ using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Components;
 
-public class Label : BaseComponent
+public class Label : BaseComponent, IParent<Label.Content>
 {
     public class Content : BaseComponent
+    {
+        public enum ContentStyle
+        {
+            None,
+            Regular,
+        }
+
+        protected FancyNode Container { get; } = new();
+
+        public override RenderableNode Node => Container;
+
+        private readonly ContentStyle _style = ContentStyle.Regular;
+        public ContentStyle Style
+        {
+            get => _style;
+            init
+            {
+                _style = value;
+                UpdateStyle();
+            }
+        }
+
+        private Color? _backgroundColor = Color.Primary.Regular;
+        public Color? BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                _backgroundColor = value;
+                UpdateStyle();
+            }
+        }
+
+        public Content()
+        {
+            Container.FlexGrow = 1;
+
+            Container.SetBorder(Edge.Horizontal, 1);
+            Container.SetPadding(Edge.Horizontal, 1);
+            Container.Color = BackgroundColor;
+        }
+
+        protected virtual void UpdateStyle()
+        {
+            Container.SetBorder(Edge.Horizontal, (float)Style);
+            Container.Color = Style == ContentStyle.Regular ? BackgroundColor : null;
+        }
+    }
+
+    public class TextContent : Content
     {
         private readonly TextNode _text;
 
@@ -22,45 +72,77 @@ public class Label : BaseComponent
             set => _text.Bold = value;
         }
 
+        private Color? _color = Color.White;
         public Color? Color
         {
-            get => _text.Color;
-            set => _text.Color = value;
+            get => _color;
+            set
+            {
+                _color = value;
+                UpdateStyle();
+            }
         }
 
-        public Color? BackgroundColor
+        public TextContent(string text)
         {
-            get => Node.Color;
-            set => Node.Color = value;
+            Container.FlexGrow = 0;
+
+            _text = new(text);
+            Container.InsertChild(_text, 0);
+
+            _text.Color = Color;
         }
 
-        public Content(string text)
+        protected override void UpdateStyle()
         {
-            _text = new(text) { Color = Color.White };
-            Node.InsertChild(_text, 0);
+            base.UpdateStyle();
 
-            BackgroundColor = Color.Pink.Regular;
-
-            Node.SetBorder(Edge.Horizontal, 1);
-            Node.SetPadding(Edge.Horizontal, 1);
+            _text.Color = _color;
         }
     }
 
-    public Label() => Node.Height = new(1);
+    private readonly FancyNode _container = new();
+    public override RenderableNode Node => _container;
 
-    public override void AddChild(IComponent child, bool insert = true, bool update = true)
+    private Content[] _children = [];
+    public IEnumerable<Content> Children
     {
-        var children = Children.ToArray();
-
-        if (child is not Content || children.Length == 0)
+        get => _children.AsReadOnly();
+        set
         {
-            base.AddChild(child, insert, update);
-            return;
+            _children = value.ToArray();
+            _container.SetChildren(_children.Select(c => c.Node));
+
+            UpdateStyle();
         }
+    }
 
-        children[^1].Node.SetPadding(Edge.Right, 2);
-        child.Node.SetMargin(Edge.Left, -2);
+    private bool _gap;
+    public bool Gap
+    {
+        get => _gap;
+        set
+        {
+            _gap = value;
 
-        base.AddChild(child, insert, update);
+            UpdateStyle();
+        }
+    }
+
+    private void UpdateStyle()
+    {
+        for (var i = 0; i < _children.Length - 1; i++)
+        {
+            var one = _children[i];
+            var two = _children[i + 1];
+
+            bool gap =
+                Gap
+                || one.Style == Content.ContentStyle.None
+                || two.Style == Content.ContentStyle.None;
+
+            one.Node.SetPadding(Edge.Right, (gap ? 1 : 2));
+            two.Node.SetMargin(Edge.Left, gap ? 0 : -2);
+        }
     }
 }

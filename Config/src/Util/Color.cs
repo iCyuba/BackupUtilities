@@ -22,6 +22,14 @@ public partial record Color(byte R, byte G, byte B)
     public static Color White { get; } = FromHex("#fff");
 
     // Colors from https://tailwindcss.com/docs/customizing-colors
+    public static Group Slate { get; } =
+        new()
+        {
+            Light = FromHex("#94a3b8"),
+            Regular = FromHex("#64748b"),
+            Dark = FromHex("#475569")
+        };
+
     public static Group Pink { get; } =
         new()
         {
@@ -29,6 +37,8 @@ public partial record Color(byte R, byte G, byte B)
             Regular = FromHex("#ec4899"),
             Dark = FromHex("#db2777")
         };
+
+    public static Group Primary => Pink;
 
     [GeneratedRegex(@"^[0-9A-F]{3}$|^[0-9A-F]{6}$", RegexOptions.IgnoreCase)]
     private static partial Regex HexRegex();

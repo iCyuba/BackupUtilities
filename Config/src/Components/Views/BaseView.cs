@@ -1,112 +1,38 @@
-using BackupUtilities.Config.Yoga;
-
 namespace BackupUtilities.Config.Components.Views;
 
-public abstract class BaseView : BaseComponent, IView
+public abstract class BaseView : BaseInteractive, IView
 {
-    public event Action? Closed;
+    public event Action<IInteractive?, IInteractive?>? FocusChange;
 
-    public bool IsFocused { get; set; }
+    protected sealed override IEnumerable<IComponent> SubComponents => [];
 
-    private LinkedList<IInteractive> _interactive = [];
-    private LinkedListNode<IInteractive>? _focus;
+    public LinkedList<IInteractive> Interactive { get; } = [];
+    private LinkedListNode<IInteractive>? _active;
 
-    public IComponent? Focus => _focus?.Value;
+    public IInteractive? Active => _active?.Value;
 
-    public App? App { get; set; }
-
-    protected BaseView()
+    public void FocusNext()
     {
-        Node.FlexDirection = FlexDirection.Column;
-        Node.FlexGrow = 1;
-        Node.SetPadding(Edge.All, 1);
+        var old = Active;
 
-        Updated += UpdateInteractive;
+        _active = _active?.Next ?? Interactive.First;
+        OnFocusChange(old);
     }
 
-    public void HandleInput(ConsoleKeyInfo key)
+    public void FocusPrevious()
     {
-        switch (key.Key)
-        {
-            case ConsoleKey.Tab:
-                if (key.Modifiers.HasFlag(ConsoleModifiers.Shift))
-                    FocusPrevious();
-                else
-                    FocusNext();
-                break;
+        var old = Active;
 
-            default:
-                _focus?.Value.HandleInput(key);
-                break;
-        }
+        _active = _active?.Previous ?? Interactive.Last;
+        OnFocusChange(old);
     }
 
-    protected void FocusNext()
-    {
-        var next = _focus?.Next ?? _interactive.First;
+    public override void HandleInput(ConsoleKeyInfo key) => Active?.HandleInput(key);
 
-        if (next == null)
-            return;
+    protected void OnFocusChange(IInteractive? old, IInteractive? current) =>
+        FocusChange?.Invoke(old, current);
 
-        if (_focus != null)
-            _focus.Value.IsFocused = false;
+    protected void OnFocusChange(IInteractive? old) => OnFocusChange(old, Active);
 
-        _focus = next;
-        next.Value.IsFocused = true;
-    }
-
-    protected void FocusPrevious()
-    {
-        var previous = _focus?.Previous ?? _interactive.Last;
-
-        if (previous == null)
-            return;
-
-        if (_focus != null)
-            _focus.Value.IsFocused = false;
-
-        _focus = previous;
-        previous.Value.IsFocused = true;
-    }
-
-    protected void Close() => Closed?.Invoke();
-
-    private void UpdateInteractive()
-    {
-        LinkedList<IInteractive> newInteractive = [];
-        AddInteractive(this);
-
-        // Find the focused interactive in the new list, or default to the first
-        var oldFocus = _focus;
-        _focus = FindFocused(_focus);
-        _interactive = newInteractive;
-
-        if (_focus?.Value != oldFocus?.Value)
-        {
-            if (oldFocus != null)
-                oldFocus.Value.IsFocused = false;
-
-            if (_focus != null)
-                _focus.Value.IsFocused = true;
-        }
-
-        return;
-
-        void AddInteractive(IComponent component)
-        {
-            if (component is IInteractive interactive && component != this)
-                newInteractive.AddLast(interactive);
-
-            foreach (var child in component.Children)
-                AddInteractive(child);
-        }
-
-        LinkedListNode<IInteractive>? FindFocused(LinkedListNode<IInteractive>? start = null)
-        {
-            if (start == null)
-                return newInteractive.First;
-
-            return newInteractive.Find(start.Value) ?? FindFocused(start.Next);
-        }
-    }
+    protected void OnFocusChange() => OnFocusChange(null);
 }

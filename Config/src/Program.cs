@@ -1,4 +1,4 @@
-﻿using BackupUtilities.Config.Components.Views;
+﻿using BackupUtilities.Config.Components.Windows;
 
 namespace BackupUtilities.Config;
 
@@ -8,8 +8,8 @@ internal static class Program
     {
         App app = new();
 
-        MainView test = new();
-        app.SetView(test);
+        MainWindow test = new(app);
+        app.SetWindow(test);
 
         app.Run();
 
