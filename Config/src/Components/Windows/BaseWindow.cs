@@ -1,6 +1,6 @@
+using BackupUtilities.Config.Components.Generic;
 using BackupUtilities.Config.Components.Views;
 using BackupUtilities.Config.Nodes;
-using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Components.Windows;
@@ -9,6 +9,7 @@ public abstract class BaseWindow : BaseView, IWindow
 {
     public event Action? Close;
 
+    protected readonly WindowTitle Title = new();
     private readonly FancyNode _container =
         new() { FlexDirection = FlexDirection.Column, FlexGrow = 1 };
 
@@ -16,35 +17,15 @@ public abstract class BaseWindow : BaseView, IWindow
 
     protected FancyNode Content { get; } = new() { FlexGrow = 1 };
 
-    private readonly App _app;
-    public override bool IsFocused => _app.Window == this;
+    protected readonly App App;
+    public override bool IsFocused => App.Window == this;
 
-    protected BaseWindow(string name, string icon, App app)
+    protected BaseWindow(App app)
     {
-        _app = app;
+        App = app;
         app.WindowChange += OnFocusChange;
 
-        Label label = new();
-
-        Label.TextContent windowName = new(name) { Bold = true };
-        Label.TextContent windowIcon = new(icon) { BackgroundColor = Color.Primary.Light };
-
-        Label.Content separator = new() { Style = Label.Content.ContentStyle.None };
-
-        Label.TextContent brandingName = new("Backup Utilities") { Bold = true };
-        Label.TextContent brandingIcon = new("") { BackgroundColor = Color.Primary.Light };
-
-        label.Children = [windowIcon, windowName, separator, brandingIcon, brandingName];
-        label.Node.SetMargin(Edge.All, 1);
-
-        _container.SetChildren([label.Node, Content]);
-
-        label.Register(this);
-        windowIcon.Register(this);
-        windowName.Register(this);
-        separator.Register(this);
-        brandingIcon.Register(this);
-        brandingName.Register(this);
+        _container.SetChildren([Title.Node, Content]);
     }
 
     protected void OnClose() => Close?.Invoke();

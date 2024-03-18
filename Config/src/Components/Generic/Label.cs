@@ -1,8 +1,9 @@
+using BackupUtilities.Config.Components.Base;
 using BackupUtilities.Config.Nodes;
 using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
-namespace BackupUtilities.Config.Components;
+namespace BackupUtilities.Config.Components.Generic;
 
 public class Label : BaseComponent, IParent<Label.Content>
 {
@@ -49,7 +50,7 @@ public class Label : BaseComponent, IParent<Label.Content>
             Container.Color = BackgroundColor;
         }
 
-        protected virtual void UpdateStyle()
+        protected override void UpdateStyle()
         {
             Container.SetBorder(Edge.Horizontal, (float)Style);
             Container.Color = Style == ContentStyle.Regular ? BackgroundColor : null;
@@ -129,7 +130,7 @@ public class Label : BaseComponent, IParent<Label.Content>
         }
     }
 
-    private void UpdateStyle()
+    protected override void UpdateStyle()
     {
         for (var i = 0; i < _children.Length - 1; i++)
         {
@@ -141,7 +142,7 @@ public class Label : BaseComponent, IParent<Label.Content>
                 || one.Style == Content.ContentStyle.None
                 || two.Style == Content.ContentStyle.None;
 
-            one.Node.SetPadding(Edge.Right, (gap ? 1 : 2));
+            one.Node.SetPadding(Edge.Right, gap ? 1 : 2);
             two.Node.SetMargin(Edge.Left, gap ? 0 : -2);
         }
     }

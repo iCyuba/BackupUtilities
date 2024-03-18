@@ -1,7 +1,7 @@
 using BackupUtilities.Config.Components.Views;
 using BackupUtilities.Config.Nodes;
 
-namespace BackupUtilities.Config.Components;
+namespace BackupUtilities.Config.Components.Base;
 
 public abstract class BaseComponent : IComponent
 {
@@ -33,4 +33,6 @@ public abstract class BaseComponent : IComponent
         foreach (var component in SubComponents)
             component.Unregister();
     }
+
+    protected virtual void UpdateStyle() { }
 }

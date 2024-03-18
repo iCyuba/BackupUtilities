@@ -1,3 +1,4 @@
+using BackupUtilities.Config.Components.Generic;
 using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Components.Windows;
@@ -5,11 +6,14 @@ namespace BackupUtilities.Config.Components.Windows;
 public class MainWindow : BaseWindow
 {
     private readonly Button _new = new("", "New config");
-    private readonly Button _quit = new("", "Quit", Button.ButtonStyle.Alternative);
+    private readonly Button _quit = new("", "Quit");
 
     public MainWindow(App app)
-        : base("Config Editor", "", app)
+        : base(app)
     {
+        Title.Icon = "";
+        Title.Text = "Config Editor";
+
         Content.FlexDirection = FlexDirection.Row;
         Content.JustifyContent = Justify.Center;
         Content.AlignItems = Align.Center;

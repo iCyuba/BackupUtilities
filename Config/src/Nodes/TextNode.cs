@@ -250,7 +250,7 @@ public class TextNode : RenderableNode
             }
         }
 
-        if (lines.Length > height)
+        if (lines.Length > height && height >= 1)
             for (int x = 1; x <= int.Min(3, width); x++)
                 buffer[height - 1, width - x].Value = ".";
 

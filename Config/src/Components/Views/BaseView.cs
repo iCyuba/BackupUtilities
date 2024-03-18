@@ -1,3 +1,5 @@
+using BackupUtilities.Config.Components.Base;
+
 namespace BackupUtilities.Config.Components.Views;
 
 public abstract class BaseView : BaseInteractive, IView
@@ -10,6 +12,12 @@ public abstract class BaseView : BaseInteractive, IView
     private LinkedListNode<IInteractive>? _active;
 
     public IInteractive? Active => _active?.Value;
+
+    protected BaseView()
+    {
+        Focus += OnFocusChange;
+        Blur += OnFocusChange;
+    }
 
     public void FocusNext()
     {
@@ -29,7 +37,7 @@ public abstract class BaseView : BaseInteractive, IView
 
     public override void HandleInput(ConsoleKeyInfo key) => Active?.HandleInput(key);
 
-    protected void OnFocusChange(IInteractive? old, IInteractive? current) =>
+    protected virtual void OnFocusChange(IInteractive? old, IInteractive? current) =>
         FocusChange?.Invoke(old, current);
 
     protected void OnFocusChange(IInteractive? old) => OnFocusChange(old, Active);

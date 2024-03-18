@@ -1,6 +1,6 @@
 using BackupUtilities.Config.Components.Views;
 
-namespace BackupUtilities.Config.Components;
+namespace BackupUtilities.Config.Components.Base;
 
 public abstract class BaseInteractive : BaseComponent, IInteractive
 {
@@ -22,6 +22,9 @@ public abstract class BaseInteractive : BaseComponent, IInteractive
 
         if (view.Active == null)
             view.FocusNext();
+
+        if (view.Active == this)
+            Focus?.Invoke();
     }
 
     public override void Unregister()
@@ -34,6 +37,8 @@ public abstract class BaseInteractive : BaseComponent, IInteractive
 
         if (View.Active == this)
             View.FocusPrevious();
+
+        Blur?.Invoke();
 
         base.Unregister();
     }
