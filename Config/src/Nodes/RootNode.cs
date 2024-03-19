@@ -25,7 +25,7 @@ public class RootNode : RenderableNode
             CalculateLayout(width, height);
 
         var render = Render();
-        var buffer = render.Buffer.Expand(width, height, (-render.Offsets.x, -render.Offsets.y));
+        var buffer = render.Normal.Buffer.Expand(new(width, height), -render.Normal.Offsets);
 
         Console.SetCursorPosition(0, 0);
 

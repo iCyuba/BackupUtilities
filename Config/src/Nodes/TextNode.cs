@@ -255,6 +255,6 @@ public class TextNode : RenderableNode
                 buffer[height - 1, width - x].Value = ".";
 
         // Value nodes can't have children, so the base method isn't called here.
-        return new(buffer, (0, 0), []);
+        return new(new(buffer, default), RenderBuffer.Empty);
     }
 }

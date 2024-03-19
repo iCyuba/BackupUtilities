@@ -24,17 +24,20 @@ public class FancyNode : RenderableNode
         for (int x = 0; x < width; x++)
         for (int y = 0; y < height; y++)
         {
-            int xx = x + render.Offsets.x;
-            int yy = y + render.Offsets.y;
+            int xx = x + (int)render.Normal.Offsets.X;
+            int yy = y + (int)render.Normal.Offsets.Y;
 
-            render.Buffer[yy, xx].Foreground ??= Color;
+            render.Normal.Buffer[yy, xx].Foreground ??= Color;
 
             if ((top >= 1 || left >= 1) && x == 0 && y == 0)
-                render.Buffer[yy, xx].Value = "";
+                render.Normal.Buffer[yy, xx].Value = "";
             else if ((bottom >= 1 || right >= 1) && x == width - 1 && y == height - 1)
-                render.Buffer[yy, xx].Value = "";
+                render.Normal.Buffer[yy, xx].Value = "";
             else
-                render.Buffer[yy, xx].Background ??= Color;
+            {
+                render.Normal.Buffer[yy, xx].Value ??= " ";
+                render.Normal.Buffer[yy, xx].Background ??= Color;
+            }
         }
 
         return render;

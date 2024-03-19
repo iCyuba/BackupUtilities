@@ -51,6 +51,8 @@ public struct Character(string value = "")
 
     public static Character MergeCharacters(Character bottom, Character top)
     {
+        top.Value ??= bottom.Value;
+        top.Foreground ??= bottom.Foreground;
         top.Background ??= bottom.Background;
 
         return top;
