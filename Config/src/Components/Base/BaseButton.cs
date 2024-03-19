@@ -6,8 +6,8 @@ public abstract class BaseButton : BaseInteractive
 
     protected BaseButton()
     {
-        Focus += UpdateStyle;
-        Blur += UpdateStyle;
+        Focused += UpdateStyle;
+        Blurred += UpdateStyle;
     }
 
     public override void HandleInput(ConsoleKeyInfo key)

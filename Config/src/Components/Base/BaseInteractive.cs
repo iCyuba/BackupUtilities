@@ -4,12 +4,13 @@ namespace BackupUtilities.Config.Components.Base;
 
 public abstract class BaseInteractive : BaseComponent, IInteractive
 {
-    protected event Action? Focus;
-    protected event Action? Blur;
+    protected event Action? Focused;
+    protected event Action? Blurred;
 
     private LinkedListNode<IInteractive>? _focusNode;
 
     public virtual bool IsFocused => View is { IsFocused: true } && View?.Active == this;
+    public virtual bool CapturesInput => false;
 
     public virtual void HandleInput(ConsoleKeyInfo key) { }
 
@@ -24,7 +25,7 @@ public abstract class BaseInteractive : BaseComponent, IInteractive
             view.FocusNext();
 
         if (view.Active == this)
-            Focus?.Invoke();
+            Focused?.Invoke();
     }
 
     public override void Unregister()
@@ -38,7 +39,7 @@ public abstract class BaseInteractive : BaseComponent, IInteractive
         if (View.Active == this)
             View.FocusPrevious();
 
-        Blur?.Invoke();
+        Blurred?.Invoke();
 
         base.Unregister();
     }
@@ -46,8 +47,8 @@ public abstract class BaseInteractive : BaseComponent, IInteractive
     private void ViewFocusChange(IInteractive? previous, IInteractive? next)
     {
         if (previous == this)
-            Blur?.Invoke();
+            Blurred?.Invoke();
         else if (next == this)
-            Focus?.Invoke();
+            Focused?.Invoke();
     }
 }

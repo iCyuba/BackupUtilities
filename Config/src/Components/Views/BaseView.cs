@@ -13,10 +13,12 @@ public abstract class BaseView : BaseInteractive, IView
 
     public IInteractive? Active => _active?.Value;
 
+    public override bool CapturesInput => Active?.CapturesInput ?? false;
+
     protected BaseView()
     {
-        Focus += OnFocusChange;
-        Blur += OnFocusChange;
+        Focused += OnFocusChange;
+        Blurred += OnFocusChange;
     }
 
     public void FocusNext()
@@ -32,6 +34,17 @@ public abstract class BaseView : BaseInteractive, IView
         var old = Active;
 
         _active = _active?.Previous ?? Interactive.Last;
+        OnFocusChange(old);
+    }
+
+    public void Focus(IInteractive? interactive)
+    {
+        if (interactive == null)
+            return;
+
+        var old = Active;
+
+        _active = Interactive.Find(interactive);
         OnFocusChange(old);
     }
 

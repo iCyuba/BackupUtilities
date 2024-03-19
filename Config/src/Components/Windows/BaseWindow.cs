@@ -7,7 +7,7 @@ namespace BackupUtilities.Config.Components.Windows;
 
 public abstract class BaseWindow : BaseView, IWindow
 {
-    public event Action? Close;
+    public event Action? Closed;
 
     protected readonly WindowTitle Title = new();
     private readonly FancyNode _container =
@@ -15,7 +15,7 @@ public abstract class BaseWindow : BaseView, IWindow
 
     public override RenderableNode Node => _container;
 
-    protected FancyNode Content { get; } = new() { FlexGrow = 1 };
+    protected readonly FancyNode Content = new() { FlexGrow = 1 };
 
     protected readonly App App;
     public override bool IsFocused => App.Window == this;
@@ -28,11 +28,11 @@ public abstract class BaseWindow : BaseView, IWindow
         _container.SetChildren([Title.Node, Content]);
     }
 
-    protected void OnClose() => Close?.Invoke();
+    protected void OnClose() => Closed?.Invoke();
 
     public override void HandleInput(ConsoleKeyInfo key)
     {
-        if (key.Key != ConsoleKey.Tab)
+        if (key.Key != ConsoleKey.Tab || CapturesInput)
         {
             base.HandleInput(key);
             return;

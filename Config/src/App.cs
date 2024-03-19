@@ -24,7 +24,6 @@ public class App
 
         Console.Title = "Backup Utilities: Config Editor";
         Console.CursorVisible = false;
-        Console.ResetColor();
         Console.Clear();
 
         // Handle screen resizing
@@ -62,7 +61,7 @@ public class App
     {
         _windows.Push(window);
 
-        window.Close += CloseWindow;
+        window.Closed += CloseWindow;
         _root.SetChildren([window.Node]);
 
         WindowChange?.Invoke();
@@ -71,7 +70,7 @@ public class App
     private void CloseWindow()
     {
         if (_windows.TryPop(out var window))
-            window.Close -= CloseWindow;
+            window.Closed -= CloseWindow;
 
         if (_windows.TryPeek(out var current))
             _root.SetChildren([current.Node]);

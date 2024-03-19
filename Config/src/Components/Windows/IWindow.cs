@@ -4,5 +4,5 @@ namespace BackupUtilities.Config.Components.Windows;
 
 public interface IWindow : IView
 {
-    event Action? Close;
+    event Action? Closed;
 }

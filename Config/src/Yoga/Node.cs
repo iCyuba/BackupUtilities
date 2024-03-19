@@ -143,7 +143,7 @@ public unsafe partial class Node(Config config) : Base(YGNodeNewWithConfig(confi
             return;
 
         // Only reset the owner, when it's this node
-        if (Owner == this)
+        if (child.Owner == this)
             child.Owner = null;
 
         // Remove the child from the list

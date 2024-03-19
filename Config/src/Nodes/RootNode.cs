@@ -28,6 +28,7 @@ public class RootNode : RenderableNode
         var buffer = render.Normal.Buffer.Expand(new(width, height), -render.Normal.Offsets);
 
         Console.SetCursorPosition(0, 0);
+        Console.ResetColor();
 
         Character? last = null;
         foreach (var character in buffer)

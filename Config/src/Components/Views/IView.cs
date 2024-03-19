@@ -9,4 +9,5 @@ public interface IView : IInteractive
 
     void FocusNext();
     void FocusPrevious();
+    void Focus(IInteractive? interactive);
 }

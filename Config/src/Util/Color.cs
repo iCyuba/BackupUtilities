@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace BackupUtilities.Config.Util;
 
-public partial record Color(byte R, byte G, byte B)
+public partial record Color(byte R, byte G, byte B, byte A = 255)
 {
     public enum Target
     {
@@ -40,7 +40,7 @@ public partial record Color(byte R, byte G, byte B)
 
     public static Group Primary => Pink;
 
-    [GeneratedRegex(@"^[0-9A-F]{3}$|^[0-9A-F]{6}$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"^[0-9A-F]{3,4}$|^[0-9A-F]{6}$|^[0-9A-F]{8}$", RegexOptions.IgnoreCase)]
     private static partial Regex HexRegex();
 
     public static Color FromHex(string hex)
@@ -52,17 +52,21 @@ public partial record Color(byte R, byte G, byte B)
         if (!regex.IsMatch(hex))
             throw new ArgumentException("Invalid hex color format");
 
-        if (hex.Length == 3)
+        if (hex.Length == 4 || hex.Length == 3)
             hex = string.Concat(hex.Select(c => $"{c}{c}"));
+
+        if (hex.Length == 6)
+            hex = $"{hex}FF";
 
         return new(
             Convert.ToByte(hex[..2], 16),
             Convert.ToByte(hex[2..4], 16),
-            Convert.ToByte(hex[4..], 16)
+            Convert.ToByte(hex[4..6], 16),
+            Convert.ToByte(hex[6..], 16)
         );
     }
 
-    public override string ToString() => $"#{R:X2}{G:X2}{B:X2}";
+    public override string ToString() => $"#{R:X2}{G:X2}{B:X2}{(A == 255 ? "" : $"{A:X2}")}";
 
     private byte To8Bit()
     {
@@ -82,6 +86,22 @@ public partial record Color(byte R, byte G, byte B)
 
     private string To24BitANSIString(Target t) => $"\x1b[{(int)t};2;{R};{G};{B}m";
 
-    public string ToANSIString(Target t) =>
-        _force8Bit ? To8BitANSIString(t) : $"{To8BitANSIString(t)}{To24BitANSIString(t)}";
+    public string ToANSIString(Target t)
+    {
+        if (A < 255)
+            return Mix(White, this).ToANSIString(t);
+
+        return _force8Bit ? To8BitANSIString(t) : $"{To8BitANSIString(t)}{To24BitANSIString(t)}";
+    }
+
+    public static Color Mix(Color bottom, Color top)
+    {
+        byte alpha = top.A;
+
+        byte r = (byte)((bottom.R * (255 - alpha) + top.R * alpha) / 255);
+        byte g = (byte)((bottom.G * (255 - alpha) + top.G * alpha) / 255);
+        byte b = (byte)((bottom.B * (255 - alpha) + top.B * alpha) / 255);
+
+        return new(r, g, b, 255);
+    }
 }
