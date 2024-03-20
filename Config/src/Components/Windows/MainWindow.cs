@@ -21,7 +21,7 @@ public class MainWindow : BaseWindow
 
         Content.SetChildren([_new.Node, _quit.Node]);
 
-        _new.Clicked += () => throw new NotImplementedException();
+        _new.Clicked += () => app.SetWindow(new EditorWindow([new()], App));
         _quit.Clicked += OnClose;
 
         _new.Register(this);

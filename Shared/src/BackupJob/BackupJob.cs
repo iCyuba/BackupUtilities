@@ -47,4 +47,7 @@ public partial class BackupJob(
     /// </summary>
     [JsonConverter(typeof(OutputJsonConverter))]
     public BackupOutput Output { get; set; } = output;
+
+    public BackupJob()
+        : this([], [], BackupMethod.Full, "0 0 * * *", new()) { }
 }
