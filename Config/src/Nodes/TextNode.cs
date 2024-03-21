@@ -36,6 +36,8 @@ public class TextNode : RenderableNode
 
     public bool Strikethrough { get; set; }
 
+    public bool Trim { get; set; } = true;
+
     public TextNode(string text)
         : base()
     {
@@ -58,6 +60,7 @@ public class TextNode : RenderableNode
         '\\',
         ':',
         '\x200B', /* 0-width space */
+        '\n',
     ];
 
     /// <summary>
@@ -70,12 +73,15 @@ public class TextNode : RenderableNode
     ///
     /// Uses the wcwidth library to measure the width of the text,
     /// </summary>
-    /// <param name="width">The width to wrap the text to</param>
+    /// <param name="width">The width to wrap the text to, -1 for no wrapping</param>
     /// <returns>The wrapped text and the maximum line width</returns>
-    private (string[] lines, int width) WrapText(int width)
+    private (string[] lines, int width) WrapText(int width = -1)
     {
         if (width == 0)
             return ([], 0);
+
+        if (width == -1)
+            width = int.MaxValue;
 
         List<string> lines = [];
 
@@ -125,8 +131,8 @@ public class TextNode : RenderableNode
 
         void ResetLine()
         {
-            // Trim the end
-            lines.Add(line.TrimEnd());
+            // Trim the end if trimming is enabled
+            lines.Add(Trim ? line.Trim() : line);
 
             // Update the maximum line width
             maxLineWidth = int.Max(maxLineWidth, lineWidth);
@@ -152,10 +158,13 @@ public class TextNode : RenderableNode
             if (lineWidth + cWidth > width)
                 ResetLine();
 
-            // Render all whitespace as
             // If the line is empty and the character is whitespace, ignore it
-            if (lineWidth == 0 && char.IsWhiteSpace(c))
+            if (lineWidth == 0 && char.IsWhiteSpace(c) && Trim)
                 return;
+
+            // Render all whitespace as a space
+            if (char.IsWhiteSpace(c))
+                c = ' ';
 
             lineWidth += cWidth;
             line += c;
@@ -176,32 +185,9 @@ public class TextNode : RenderableNode
         if (node is not TextNode textNode)
             throw new InvalidOperationException("Expected a TextNode");
 
-        int strW = textNode.Text.Width();
-
-        // Width mode = undefined -> return the string width
-        // Width mode = at most && text < width -> also return the string width
-        // Width mode = exactly && text is smaller than width -> return the input width
-        // Width mode & height mode = exactly -> return the input width and height
-        if (
-            widthMode == MeasureMode.Undefined
-            || strW < width
-            || (widthMode == heightMode && heightMode == MeasureMode.Exactly)
-        )
-            return new(
-                widthMode switch
-                {
-                    MeasureMode.Exactly => width,
-                    _ => strW
-                },
-                heightMode switch
-                {
-                    MeasureMode.Exactly => height,
-                    _ => 1
-                }
-            );
-
-        // Width mode = at most | exactly && text is longer than width -> calculate the number of lines required
-        (string[] lines, int maxLineWidth) = textNode.WrapText((int)width);
+        (string[] lines, int maxLineWidth) = textNode.WrapText(
+            widthMode == MeasureMode.Undefined ? -1 : (int)width
+        );
 
         return new(
             maxLineWidth,
@@ -234,20 +220,20 @@ public class TextNode : RenderableNode
                     buffer[y, x].Value ??= "";
                     buffer[y, x].Value += c;
 
+                    // Styles
+                    buffer[y, x].Foreground = Color;
+                    buffer[y, x].Bold = Bold;
+                    buffer[y, x].Italic = Italic;
+                    buffer[y, x].Underline = Underline;
+                    buffer[y, x].Strikethrough = Strikethrough;
+
                     x += int.Max(0, c.Width());
                 }
             }
 
-            // Set the styles after the text has been rendered
+            // Set the bg color after the text has been rendered
             for (int x = 0; x < width; x++)
-            {
-                buffer[y, x].Foreground = Color;
                 buffer[y, x].Background = BackgroundColor;
-                buffer[y, x].Bold = Bold;
-                buffer[y, x].Italic = Italic;
-                buffer[y, x].Underline = Underline;
-                buffer[y, x].Strikethrough = Strikethrough;
-            }
         }
 
         if (lines.Length > height && height >= 1)

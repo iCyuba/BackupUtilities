@@ -45,7 +45,10 @@ public class App
             // this may throw an index out of range exception
             try
             {
-                _root.Print();
+                // If a key is available, don't print.
+                // This results in better drag and drop + paste performance
+                if (!Console.KeyAvailable)
+                    _root.Print();
             }
             catch { }
 

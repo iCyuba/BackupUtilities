@@ -51,15 +51,19 @@ public struct Character(string value = "")
 
     public static Character MergeCharacters(Character bottom, Character top)
     {
+        if (top.Value is null or " " && top is { Underline: false, Strikethrough: false })
+        {
+            top.Value = bottom.Value;
+            top.Bold = bottom.Bold;
+            top.Italic = bottom.Italic;
+            top.Underline = bottom.Underline;
+            top.Strikethrough = bottom.Strikethrough;
+        }
+
         if (top.Background?.A < 255)
         {
-            if (top.Value == null || top.Value == " ")
-            {
-                top.Value = bottom.Value;
-
-                if (bottom.Foreground != null)
-                    top.Foreground = Color.Mix(bottom.Foreground ?? Color.White, top.Foreground!);
-            }
+            if (bottom.Foreground != null)
+                top.Foreground = Color.Mix(bottom.Foreground ?? Color.White, top.Foreground!);
 
             if (bottom.Background != null)
                 top.Background = Color.Mix(bottom.Background ?? Color.White, top.Background!);
@@ -67,7 +71,6 @@ public struct Character(string value = "")
             return top;
         }
 
-        top.Value ??= bottom.Value;
         top.Foreground ??= bottom.Foreground;
         top.Background ??= bottom.Background;
 
