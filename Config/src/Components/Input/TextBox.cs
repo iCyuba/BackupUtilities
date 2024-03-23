@@ -1,15 +1,15 @@
 using BackupUtilities.Config.Components.Base;
-using BackupUtilities.Config.Nodes;
-using BackupUtilities.Config.Util;
-using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Components.Generic;
 
-public sealed class TextBox : BaseInput
+/// <summary>
+/// Text input box.
+/// </summary>
+public sealed class TextBox : BaseTextInput<string>
 {
-    public event Action<string>? Updated;
+    public override event Action? Updated;
 
-    public string Value
+    public override string Value
     {
         get => Text;
         set => Text = value;
@@ -28,6 +28,6 @@ public sealed class TextBox : BaseInput
         else
             return;
 
-        Updated?.Invoke(Value);
+        Updated?.Invoke();
     }
 }

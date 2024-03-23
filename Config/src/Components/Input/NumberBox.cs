@@ -2,11 +2,14 @@ using BackupUtilities.Config.Components.Base;
 
 namespace BackupUtilities.Config.Components.Generic;
 
-public sealed class NumberBox : BaseInput
+/// <summary>
+/// Number input box.
+/// </summary>
+public sealed class NumberBox : BaseTextInput<int>
 {
-    public event Action<int>? Updated;
+    public override event Action? Updated;
 
-    public int Value
+    public override int Value
     {
         get
         {
@@ -44,6 +47,6 @@ public sealed class NumberBox : BaseInput
         else
             return;
 
-        Updated?.Invoke(Value);
+        Updated?.Invoke();
     }
 }

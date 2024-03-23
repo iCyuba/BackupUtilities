@@ -4,8 +4,15 @@ using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Components.Base;
 
-public abstract class BaseInput : BaseInteractive
+/// <summary>
+/// Base class for text based input components.
+/// </summary>
+/// <typeparam name="T">Type of the input value.</typeparam>
+public abstract class BaseTextInput<T> : BaseInteractive, IInput<T>
 {
+    public abstract event Action? Updated;
+    public abstract T Value { get; set; }
+
     private char Cursor => IsFocused ? '▏' : ' ';
     protected string Text
     {
@@ -20,7 +27,7 @@ public abstract class BaseInput : BaseInteractive
 
     public override RenderableNode Node => _container;
 
-    protected BaseInput()
+    protected BaseTextInput()
     {
         Focused += UpdateStyle;
         Blurred += UpdateStyle;
