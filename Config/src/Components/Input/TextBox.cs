@@ -15,7 +15,7 @@ public sealed class TextBox : BaseTextInput<string>
         set => Text = value;
     }
 
-    public bool Multiline { get; set; } = true;
+    public bool Multiline { get; set; }
 
     public override void HandleInput(ConsoleKeyInfo key)
     {

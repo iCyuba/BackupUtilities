@@ -17,27 +17,34 @@ public sealed class Button : BaseButton
         }
     }
 
-    protected override IEnumerable<IComponent> SubComponents => [_label, _icon, _text];
+    protected override IEnumerable<IComponent> SubComponents =>
+        _text == null ? [_label, _icon] : [_label, _icon, _text];
 
     private readonly Label _label;
     private readonly Label.TextContent _icon;
-    private readonly Label.TextContent _text;
+    private readonly Label.TextContent? _text;
 
     public override RenderableNode Node => _label.Node;
 
-    public Button(string icon, string text)
+    public Button(string icon, string? text = null)
     {
         _icon = new(icon);
-        _text = new(text);
-        _label = new() { Children = [_icon, _text], Gap = true };
+        if (text != null)
+            _text = new(text);
+
+        _label = new() { Children = _text == null ? [_icon] : [_icon, _text], Gap = true };
 
         UpdateStyle();
     }
 
     protected override void UpdateStyle()
     {
-        _text.Bold = IsFocused;
-        _text.BackgroundColor = IsFocused ? Color.Dark : Color.Regular;
+        if (_text != null)
+        {
+            _text.Bold = IsFocused;
+            _text.BackgroundColor = IsFocused ? Color.Dark : Color.Regular;
+        }
+
         _icon.BackgroundColor = IsFocused ? Color.Regular : Color.Light;
     }
 }

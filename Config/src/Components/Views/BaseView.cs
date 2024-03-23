@@ -2,6 +2,9 @@ using BackupUtilities.Config.Components.Base;
 
 namespace BackupUtilities.Config.Components.Views;
 
+/// <summary>
+/// Base class for views.
+/// </summary>
 public abstract class BaseView : BaseInteractive, IView
 {
     public event Action<IInteractive?, IInteractive?>? FocusChange;
@@ -13,7 +16,8 @@ public abstract class BaseView : BaseInteractive, IView
 
     public IInteractive? Active => _active?.Value;
 
-    public override bool CapturesInput => Active?.CapturesInput ?? false;
+    public bool InputCapturedInside =>
+        (Active?.CapturesInput ?? false) || Active is IView { InputCapturedInside: true };
 
     protected BaseView()
     {
@@ -35,6 +39,14 @@ public abstract class BaseView : BaseInteractive, IView
 
         _active = _active?.Previous ?? Interactive.Last;
         OnFocusChange(old);
+    }
+
+    public void FocusNearest()
+    {
+        if (_active?.Next != null || _active?.Previous == null)
+            FocusNext();
+        else
+            FocusPrevious();
     }
 
     public void Focus(IInteractive? interactive)

@@ -5,7 +5,10 @@ using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Components.Windows;
 
-public abstract class BaseWindow : BaseView, IWindow
+/// <summary>
+/// Base class for windows.
+/// </summary>
+public abstract class BaseWindow : TabView, IWindow
 {
     public event Action? Closed;
 
@@ -29,18 +32,4 @@ public abstract class BaseWindow : BaseView, IWindow
     }
 
     protected void OnClose() => Closed?.Invoke();
-
-    public override void HandleInput(ConsoleKeyInfo key)
-    {
-        if (key.Key != ConsoleKey.Tab || CapturesInput)
-        {
-            base.HandleInput(key);
-            return;
-        }
-
-        if (key.Modifiers.HasFlag(ConsoleModifiers.Shift))
-            FocusPrevious();
-        else
-            FocusNext();
-    }
 }

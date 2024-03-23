@@ -10,7 +10,7 @@ namespace BackupUtilities.Config.Components;
 /// <summary>
 /// Base component for modals
 /// </summary>
-public abstract class BaseModal : BaseView, IWindow
+public abstract class BaseModal : TabView, IWindow
 {
     public event Action? Closed;
 
@@ -58,12 +58,7 @@ public abstract class BaseModal : BaseView, IWindow
     {
         if (key.Key == ConsoleKey.Escape)
             Closed?.Invoke();
-        else if (key.Key == ConsoleKey.Tab)
-            if (key.Modifiers.HasFlag(ConsoleModifiers.Shift))
-                FocusPrevious();
-            else
-                FocusNext();
-
-        base.HandleInput(key);
+        else
+            base.HandleInput(key);
     }
 }
