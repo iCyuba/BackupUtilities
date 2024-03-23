@@ -88,7 +88,7 @@ public class Label : BaseComponent, IParent<Label.Content>
         {
             Container.FlexGrow = 0;
 
-            _text = new(text);
+            _text = new(text) { Trim = false };
             Container.InsertChild(_text, 0);
 
             _text.Color = Color;

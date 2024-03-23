@@ -1,6 +1,6 @@
 namespace BackupUtilities.Config.Components;
 
-public interface IInput<T> : IInteractive
+public interface IInput<T> : IComponent
 {
     /// <summary>
     /// Value of the input has changed.
