@@ -48,7 +48,7 @@ public static class BackupScheduler
             // Setup the cron trigger
             var trigger = TriggerBuilder
                 .Create()
-                .WithCronSchedule(FixCron(job.Timing))
+                .WithCronSchedule(Cron.Fix(job.Timing))
                 .StartNow()
                 .Build();
 
@@ -58,31 +58,5 @@ public static class BackupScheduler
             // Schedule the job
             await scheduler.ScheduleJob(schedulerJob, trigger);
         }
-    }
-
-    /// <summary>
-    /// Fix a cron expression to be valid.
-    ///
-    /// I blame Quartz for this...
-    /// </summary>
-    /// <param name="cron">The cron expression to fix</param>
-    /// <returns>The fixed cron expression</returns>
-    private static string FixCron(string cron)
-    {
-        // Split the cron expression into parts
-        List<string> parts = [..cron.Split(' ')];
-
-        // If there are less than 6 parts, add a 0 to the start (seconds)
-        if (parts.Count < 6)
-            parts.Insert(0, "0");
-
-        // If day of month / week is * and the other is not, set it to ?
-        if (parts[3] == "*" && parts[5] == "*" || parts[3] != "*" && parts[5] == "*")
-            parts[5] = "?";
-        else if (parts[3] == "*" && parts[5] != "*")
-            parts[3] = "?";
-
-        // Return the fixed cron expression
-        return string.Join(' ', parts);
     }
 }

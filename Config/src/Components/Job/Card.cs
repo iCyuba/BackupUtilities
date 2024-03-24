@@ -10,11 +10,19 @@ namespace BackupUtilities.Config.Components.Job;
 
 public sealed class Card : UpDownView
 {
+    public event Action? Updated;
+
     public BackupJob Job { get; }
     public int Index
     {
         set => _title.Text = $"{value + 1}";
     }
+
+    public bool Valid => _sources.Valid && _targets.Valid && _timing.Valid;
+
+    private readonly Field<IEnumerable<string>> _sources;
+    private readonly Field<IEnumerable<string>> _targets;
+    private readonly Field<string> _timing;
 
     private readonly FancyNode _container = new();
     public override RenderableNode Node => _container;
@@ -25,16 +33,24 @@ public sealed class Card : UpDownView
     {
         Job = job;
 
-        Field<IEnumerable<string>> sources =
-            new(() => Job.Sources, s => s.Count().FormatNumber(), new PathList());
+        _sources = new(
+            () => Job.Sources,
+            s => s.Count().FormatNumber(),
+            new PathList(),
+            s => s.Any()
+        );
 
-        Field<IEnumerable<string>> targets =
-            new(() => Job.Targets, t => t.Count().FormatNumber(), new PathList());
+        _targets = new(
+            () => Job.Targets,
+            t => t.Count().FormatNumber(),
+            new PathList(),
+            s => s.Any()
+        );
 
         Field<BackupJob.BackupMethod> method =
             new(() => Job.Method, m => $"{m}"[..4], new Radio<BackupJob.BackupMethod>());
 
-        Field<string> timing = new(() => Job.Timing, _ => "", new TextBox());
+        _timing = new(() => Job.Timing, _ => "", new TextBox(), Cron.Validate);
 
         Field<BackupJob.BackupRetention> retention =
             new(
@@ -64,10 +80,10 @@ public sealed class Card : UpDownView
         _container.SetChildren(
             [
                 _title.Node,
-                sources.Node,
-                targets.Node,
+                _sources.Node,
+                _targets.Node,
                 method.Node,
-                timing.Node,
+                _timing.Node,
                 retention.Node,
                 ignore.Node,
                 output.Node
@@ -76,12 +92,22 @@ public sealed class Card : UpDownView
 
         _title.Register(this);
 
-        sources.Register(this);
-        targets.Register(this);
+        _sources.Register(this);
+        _targets.Register(this);
         method.Register(this);
-        timing.Register(this);
+        _timing.Register(this);
         retention.Register(this);
         ignore.Register(this);
         output.Register(this);
+
+        _sources.Updated += Update;
+        _targets.Updated += Update;
+        method.Updated += Update;
+        _timing.Updated += Update;
+        retention.Updated += Update;
+        ignore.Updated += Update;
+        output.Updated += Update;
     }
+
+    private void Update() => Updated?.Invoke();
 }

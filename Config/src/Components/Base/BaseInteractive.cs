@@ -18,8 +18,12 @@ public abstract class BaseInteractive : BaseComponent, IInteractive
     {
         base.Register(view);
 
-        _focusNode = view.Interactive.AddLast(this);
         view.FocusChange += ViewFocusChange;
+
+        if (view.Interactive.Contains(this))
+            return;
+
+        _focusNode = view.Interactive.AddLast(this);
 
         if (view.Active == null)
             view.FocusNext();
