@@ -45,6 +45,7 @@ public enum Edge : uint
     All
 }
 
+[Flags]
 public enum Errata : uint
 {
     None = 0,

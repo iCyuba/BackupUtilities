@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace BackupUtilities.Config.Yoga;
 
 /// <summary>
@@ -73,11 +71,6 @@ public unsafe partial class Config : Base
     /// <br/>
     /// YGErrata is a bitmask, and multiple errata may be set at once. Predfined
     /// constants exist for convenience:
-    /// 1. YGErrataNone: No errata
-    /// 2. YGErrataClassic: Match layout behaviors of Yoga 1.x
-    /// 3. YGErrataAll: Match layout behaviors of Yoga 1.x, including
-    /// `UseLegacyStretchBehaviour`
-    ///
     /// <list type="number">
     ///     <item>
     ///         <see cref="Errata.None" />: No errata

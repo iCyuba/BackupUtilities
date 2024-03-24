@@ -1,5 +1,8 @@
 namespace BackupUtilities.Config.Components;
 
+/// <summary>
+/// A component that can be interacted with.
+/// </summary>
 public interface IInteractive : IComponent
 {
     public bool IsFocused { get; }

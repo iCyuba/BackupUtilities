@@ -1,3 +1,4 @@
+using BackupUtilities.Config.Components.Generic;
 using BackupUtilities.Config.Components.Views;
 using BackupUtilities.Config.Nodes;
 using BackupUtilities.Config.Yoga;
@@ -5,7 +6,10 @@ using BackupUtilities.Shared;
 
 namespace BackupUtilities.Config.Components.Job;
 
-public class JobList : LeftRightView
+/// <summary>
+/// List of cards representing backup jobs.
+/// </summary>
+public class CardList : LeftRightView
 {
     public event Action? Updated;
 
@@ -46,7 +50,7 @@ public class JobList : LeftRightView
 
     public bool Valid => _cards.All(c => c.Valid) && _cards.Count != 0;
 
-    public JobList(IEnumerable<BackupJob> jobs)
+    public CardList(IEnumerable<BackupJob> jobs)
     {
         _newButton.Register(this);
 
@@ -86,6 +90,8 @@ public class JobList : LeftRightView
     {
         var card = (Card)Active!;
 
+        FocusNearest();
+
         _container.RemoveChild(card.Node);
         _cards.Remove(card);
         card.Unregister();
@@ -96,10 +102,6 @@ public class JobList : LeftRightView
         for (var i = 0; i < _cards.Count; i++)
             _cards[i].Index = i;
 
-        // Focus the next card
-        if (_cards.Count > 0)
-            Focus(_cards.First());
-
         Update();
     }
 
@@ -109,6 +111,9 @@ public class JobList : LeftRightView
 
         // Scroll to the selected card
         if (current != null)
-            _container.ScrollTo = current.Node;
+            if (current is Card card)
+                _container.ScrollTo = card.Node;
+            else if (current is Button)
+                _container.ScrollTo = _newButton.Node;
     }
 }

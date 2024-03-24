@@ -4,6 +4,9 @@ using BackupUtilities.Config.Util;
 
 namespace BackupUtilities.Config.Components.Generic;
 
+/// <summary>
+/// Generic button that can be clicked with either enter or spacebar.
+/// </summary>
 public sealed class Button : BaseButton
 {
     private Color.Group _accent = Color.Primary;
@@ -28,8 +31,7 @@ public sealed class Button : BaseButton
         }
     }
 
-    protected override IEnumerable<IComponent> SubComponents =>
-        _text == null ? [_label, _icon] : [_label, _icon, _text];
+    protected override IEnumerable<IComponent> SubComponents => [_label];
 
     private readonly Label _label;
     private readonly Label.TextContent _icon;
@@ -43,7 +45,7 @@ public sealed class Button : BaseButton
         if (text != null)
             _text = new(text);
 
-        _label = new() { Children = _text == null ? [_icon] : [_icon, _text], Gap = true };
+        _label = new(_text == null ? [_icon] : [_icon, _text], true);
 
         UpdateStyle();
     }

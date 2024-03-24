@@ -27,8 +27,8 @@ public class MainWindow : BaseWindow
     public MainWindow(App app)
         : base(app)
     {
-        Title.Icon = "";
-        Title.Text = "Config Editor";
+        Icon = "";
+        Title = "Config Editor";
 
         _buttons.SetChildren([_new.Node, _file.Node, _shared.Node, _quit.Node]);
         _buttons.SetGap(Gutter.Column, 6);
@@ -73,16 +73,16 @@ public class MainWindow : BaseWindow
 
         modal.Closed += () =>
         {
-            string id = modal.Value;
+            string uri = modal.Value;
 
             try
             {
-                var jobs = SharingClient.Get(id).Result;
+                var jobs = SharingClient.Get(SharingClient.ParseIdFromUri(uri) ?? "").Result;
                 App.SetWindow(new EditorWindow(jobs, App));
             }
             catch
             {
-                OpenModal(new AlertModal("Invalid id or url.") { Title = "Error", Icon = "" });
+                OpenModal(new AlertModal("Invalid url.") { Title = "Error", Icon = "" });
             }
         };
     }

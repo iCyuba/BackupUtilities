@@ -3,6 +3,9 @@ using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Nodes;
 
+/// <summary>
+/// A node that renders text in the console.
+/// </summary>
 public class TextNode : RenderableNode
 {
     private string _text;

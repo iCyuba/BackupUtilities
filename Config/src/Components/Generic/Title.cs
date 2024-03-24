@@ -10,7 +10,7 @@ namespace BackupUtilities.Config.Components.Generic;
 /// </summary>
 public sealed class Title : BaseComponent
 {
-    protected override IEnumerable<IComponent> SubComponents => [_label, _icon, _text];
+    protected override IEnumerable<IComponent> SubComponents => [_label];
 
     public string Text
     {
@@ -28,14 +28,14 @@ public sealed class Title : BaseComponent
 
     private readonly Label.TextContent _icon = new("");
     private readonly Label.TextContent _text = new("");
-    private readonly Label _label = new();
+    private readonly Label _label;
 
     public override RenderableNode Node => _label.Node;
 
     public Title()
     {
+        _label = new([_icon, _text]);
         _label.Node.SetMarginAuto(Edge.Horizontal);
-        _label.Children = [_icon, _text];
 
         UpdateStyle();
     }

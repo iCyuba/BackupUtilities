@@ -9,6 +9,9 @@ using BackupUtilities.Shared;
 
 namespace BackupUtilities.Config.Components.Job;
 
+/// <summary>
+/// A card for a backup job.
+/// </summary>
 public sealed class Card : UpDownView
 {
     public event Action? Updated;
@@ -40,14 +43,16 @@ public sealed class Card : UpDownView
             () => Job.Sources,
             s => s.Count().FormatNumber(),
             new PathList(),
-            s => s.Any()
+            s => s.Any(),
+            false
         );
 
         _targets = new(
             () => Job.Targets,
             t => t.Count().FormatNumber(),
             new PathList(),
-            s => s.Any()
+            s => s.Any(),
+            false
         );
 
         Field<BackupJob.BackupMethod> method =
@@ -63,7 +68,13 @@ public sealed class Card : UpDownView
             );
 
         Field<IEnumerable<string>> ignore =
-            new(() => Job.Ignore, i => i.Count().FormatNumber(), new List<string, TextBox>());
+            new(
+                () => Job.Ignore,
+                i => i.Count().FormatNumber(),
+                new List<string, TextBox>(),
+                null,
+                false
+            );
 
         Field<BackupJob.BackupOutput> output =
             new(
@@ -74,7 +85,7 @@ public sealed class Card : UpDownView
 
         _container.FlexShrink = 0;
         _container.FlexDirection = FlexDirection.Column;
-        _container.Color = Color.FromHex("#e2e8f0");
+        _container.BackgroundColor = Color.FromHex("#e2e8f0");
 
         _container.SetBorder(Edge.Horizontal, 2);
         _container.SetBorder(Edge.Vertical, 1);

@@ -3,9 +3,15 @@ using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Nodes;
 
+/// <summary>
+/// Node that renders a fancy border around its content.
+/// </summary>
 public class FancyNode : RenderableNode
 {
-    public Color? Color { get; set; }
+    /// <summary>
+    /// Background color and color of the border.
+    /// </summary>
+    public Color? BackgroundColor { get; set; }
 
     protected override RenderOutput Render()
     {
@@ -27,7 +33,7 @@ public class FancyNode : RenderableNode
             int xx = x + (int)render.Normal.Offsets.X;
             int yy = y + (int)render.Normal.Offsets.Y;
 
-            render.Normal.Buffer[yy, xx].Foreground ??= Color;
+            render.Normal.Buffer[yy, xx].Foreground ??= BackgroundColor;
 
             if ((top >= 1 || left >= 1) && x == 0 && y == 0)
                 render.Normal.Buffer[yy, xx].Value = "";
@@ -36,7 +42,7 @@ public class FancyNode : RenderableNode
             else
             {
                 render.Normal.Buffer[yy, xx].Value ??= " ";
-                render.Normal.Buffer[yy, xx].Background ??= Color;
+                render.Normal.Buffer[yy, xx].Background ??= BackgroundColor;
             }
         }
 

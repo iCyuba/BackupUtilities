@@ -16,13 +16,24 @@ public class InputModal<T> : BaseModal, IInput<T>
 
     protected readonly IInput<T> Input;
 
-    public InputModal(IInput<T> input)
+    private readonly bool _closeOnEnter;
+
+    public InputModal(IInput<T> input, bool closeOnEnter = true)
     {
         Input = input;
+        _closeOnEnter = closeOnEnter;
 
         input.Register(this);
         Content.SetChildren([input.Node]);
 
         input.Updated += () => Updated?.Invoke();
+    }
+
+    public override void HandleInput(ConsoleKeyInfo key)
+    {
+        if (key.Key == ConsoleKey.Enter && _closeOnEnter)
+            Close();
+        else
+            base.HandleInput(key);
     }
 }

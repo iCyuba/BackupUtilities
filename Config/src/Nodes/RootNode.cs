@@ -3,6 +3,9 @@ using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Nodes;
 
+/// <summary>
+/// The root node of the layout tree.
+/// </summary>
 public class RootNode : RenderableNode
 {
     // Readonly properties for the root node
@@ -15,6 +18,9 @@ public class RootNode : RenderableNode
         base.PositionType = PositionType.Relative;
     }
 
+    /// <summary>
+    /// Print the layout to the console.
+    /// </summary>
     public void Print()
     {
         int width = Console.WindowWidth;
@@ -28,7 +34,6 @@ public class RootNode : RenderableNode
         var buffer = render.Normal.Buffer.Expand(new(width, height), -render.Normal.Offsets);
 
         Console.SetCursorPosition(0, 0);
-        Console.ResetColor();
 
         Character? last = null;
         foreach (var character in buffer)
@@ -36,5 +41,7 @@ public class RootNode : RenderableNode
             Console.Write(character.ToANSIString(last));
             last = character;
         }
+
+        Console.ResetColor();
     }
 }

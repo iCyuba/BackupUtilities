@@ -2,6 +2,9 @@ using BackupUtilities.Config.Components.Views;
 
 namespace BackupUtilities.Config.Components.Base;
 
+/// <summary>
+/// Base class for interactive components.
+/// </summary>
 public abstract class BaseInteractive : BaseComponent, IInteractive
 {
     protected event Action? Focused;

@@ -46,7 +46,7 @@ public abstract class BaseModal : TabView, IWindow
         _overlay.SetPosition(Edge.All, 0);
         _overlay.SetBorder(Edge.All, 1);
 
-        _overlay.Color = Color.FromHex("#64748b40");
+        _overlay.BackgroundColor = Color.FromHex("#64748b40");
         _overlay.SetChildren([_modal]);
 
         _modal.MinWidth = new(20);
@@ -54,7 +54,7 @@ public abstract class BaseModal : TabView, IWindow
         _modal.MaxWidth = new(Unit.Percent, 75);
         _modal.MaxHeight = new(Unit.Percent, 75);
 
-        _modal.Color = Color.White;
+        _modal.BackgroundColor = Color.White;
         _modal.SetBorder(Edge.All, 1);
         _modal.SetPadding(Edge.Horizontal, 1);
         _modal.SetGap(Gutter.Row, 1);

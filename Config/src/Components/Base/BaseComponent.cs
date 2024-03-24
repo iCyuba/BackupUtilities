@@ -3,6 +3,9 @@ using BackupUtilities.Config.Nodes;
 
 namespace BackupUtilities.Config.Components.Base;
 
+/// <summary>
+/// Base class for all components.
+/// </summary>
 public abstract class BaseComponent : IComponent
 {
     protected virtual IEnumerable<IComponent> SubComponents { get; } = [];

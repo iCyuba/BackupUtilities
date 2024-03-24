@@ -19,9 +19,9 @@ public sealed class Radio<T> : BaseView, IInput<T>
     /// </summary>
     private sealed class RadioValue : BaseInteractive
     {
-        protected override IEnumerable<IComponent> SubComponents => [_label, _icon, _text];
+        protected override IEnumerable<IComponent> SubComponents => [_label];
 
-        private readonly Label _label = new() { Gap = true };
+        private readonly Label _label;
         private readonly Label.TextContent _icon = new(" ");
         private readonly Label.TextContent _text;
 
@@ -38,7 +38,7 @@ public sealed class Radio<T> : BaseView, IInput<T>
                 Bold = true,
             };
 
-            _label.Children = [_icon, _text];
+            _label = new([_icon, _text], true);
 
             Focused += UpdateStyle;
             Blurred += UpdateStyle;

@@ -1,5 +1,9 @@
 namespace BackupUtilities.Config.Util;
 
+/// <summary>
+/// Represents a single character in a console.
+/// </summary>
+/// <param name="value"></param>
 public struct Character(string value = "")
 {
     public string Value { get; set; } = value;
@@ -51,7 +55,11 @@ public struct Character(string value = "")
 
     public static Character MergeCharacters(Character bottom, Character top)
     {
-        if (top.Value is null or " " && top is { Underline: false, Strikethrough: false })
+        if (
+            top.Value is null or " "
+            && top is { Underline: false, Strikethrough: false }
+            && top.Background?.A != 255
+        )
         {
             top.Value = bottom.Value;
             top.Bold = bottom.Bold;

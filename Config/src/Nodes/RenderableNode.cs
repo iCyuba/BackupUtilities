@@ -4,6 +4,9 @@ using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Nodes;
 
+/// <summary>
+/// Extension of Yoga's Node class that can be rendered to the console.
+/// </summary>
 public abstract class RenderableNode : Node
 {
     /// <summary>

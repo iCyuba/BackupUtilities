@@ -22,7 +22,7 @@ public sealed class EditorWindow : BaseWindow
 
     private bool Valid => _jobList.Valid;
 
-    private readonly JobList _jobList;
+    private readonly CardList _jobList;
     private readonly Button _save = new("", "Save");
     private readonly Button _saveAs = new("", "Save As");
     private readonly Button _share = new("", "Share");
@@ -34,7 +34,7 @@ public sealed class EditorWindow : BaseWindow
     {
         _jobList = new(jobs);
 
-        Title.Icon = "";
+        Icon = "";
         // Title text is set in UpdateStyle
 
         Content.FlexDirection = FlexDirection.Column;
@@ -65,7 +65,7 @@ public sealed class EditorWindow : BaseWindow
 
     protected override void UpdateStyle()
     {
-        Title.Text = $"{Jobs.Count} Backup Job{(Jobs.Count == 1 ? "" : "s")}";
+        Title = $"{Jobs.Count} Backup Job{(Jobs.Count == 1 ? "" : "s")}";
 
         _save.Disabled = !Valid;
         _saveAs.Disabled = !Valid;

@@ -2,8 +2,14 @@ using System.Text.RegularExpressions;
 
 namespace BackupUtilities.Config.Util;
 
+/// <summary>
+/// RGBA color
+/// </summary>
 public partial record Color(byte R, byte G, byte B, byte A = 255)
 {
+    /// <summary>
+    /// The target of the color. (Foreground or Background)
+    /// </summary>
     public enum Target
     {
         Foreground = 38,
@@ -17,7 +23,10 @@ public partial record Color(byte R, byte G, byte B, byte A = 255)
         public Color Dark { get; init; }
     }
 
-    private static bool _force8Bit = Environment.GetCommandLineArgs().Contains("--8bit");
+    /// <summary>
+    /// Whether to force 8-bit colors.
+    /// </summary>
+    private static readonly bool _force8Bit = Environment.GetCommandLineArgs().Contains("--8bit");
 
     public static Color White { get; } = FromHex("#fff");
 
@@ -59,6 +68,12 @@ public partial record Color(byte R, byte G, byte B, byte A = 255)
     [GeneratedRegex(@"^[0-9A-F]{3,4}$|^[0-9A-F]{6}$|^[0-9A-F]{8}$", RegexOptions.IgnoreCase)]
     private static partial Regex HexRegex();
 
+    /// <summary>
+    /// Parse a hex color string.
+    /// </summary>
+    /// <param name="hex">The hex color string.</param>
+    /// <returns>The color.</returns>
+    /// <exception cref="ArgumentException">Thrown when the hex color string is invalid.</exception>
     public static Color FromHex(string hex)
     {
         if (hex.StartsWith('#'))
@@ -82,6 +97,10 @@ public partial record Color(byte R, byte G, byte B, byte A = 255)
         );
     }
 
+    /// <summary>
+    /// Convert the color to a hex string.
+    /// </summary>
+    /// <returns>Hex color string.</returns>
     public override string ToString() => $"#{R:X2}{G:X2}{B:X2}{(A == 255 ? "" : $"{A:X2}")}";
 
     private byte To8Bit()
@@ -102,6 +121,11 @@ public partial record Color(byte R, byte G, byte B, byte A = 255)
 
     private string To24BitANSIString(Target t) => $"\x1b[{(int)t};2;{R};{G};{B}m";
 
+    /// <summary>
+    /// Convert the color to an ANSI escape sequence.
+    /// </summary>
+    /// <param name="t">The target of the color. (Foreground or Background)</param>
+    /// <returns>An ANSI escape sequence.</returns>
     public string ToANSIString(Target t)
     {
         if (A < 255)
@@ -110,6 +134,12 @@ public partial record Color(byte R, byte G, byte B, byte A = 255)
         return _force8Bit ? To8BitANSIString(t) : $"{To8BitANSIString(t)}{To24BitANSIString(t)}";
     }
 
+    /// <summary>
+    /// Mix two colors.
+    /// </summary>
+    /// <param name="bottom">Bottom color</param>
+    /// <param name="top">Top color</param>
+    /// <returns>A mix of the two.</returns>
     public static Color Mix(Color bottom, Color top)
     {
         byte alpha = top.A;

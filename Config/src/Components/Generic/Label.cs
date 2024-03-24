@@ -5,8 +5,14 @@ using BackupUtilities.Config.Yoga;
 
 namespace BackupUtilities.Config.Components.Generic;
 
-public class Label : BaseComponent, IParent<Label.Content>
+/// <summary>
+/// Customizable label. Used by a lot of other components.
+/// </summary>
+public sealed class Label : BaseComponent
 {
+    /// <summary>
+    /// Empty label content. Used for spacing.
+    /// </summary>
     public class Content : BaseComponent
     {
         public enum ContentStyle
@@ -14,6 +20,8 @@ public class Label : BaseComponent, IParent<Label.Content>
             None,
             Regular,
         }
+
+        public event Action? Updated;
 
         protected FancyNode Container { get; } = new();
 
@@ -47,16 +55,21 @@ public class Label : BaseComponent, IParent<Label.Content>
 
             Container.SetBorder(Edge.Horizontal, 1);
             Container.SetPadding(Edge.Horizontal, 1);
-            Container.Color = BackgroundColor;
+            Container.BackgroundColor = BackgroundColor;
         }
 
         protected override void UpdateStyle()
         {
             Container.SetBorder(Edge.Horizontal, (float)Style);
-            Container.Color = Style == ContentStyle.Regular ? BackgroundColor : null;
+            Container.BackgroundColor = Style == ContentStyle.Regular ? BackgroundColor : null;
+
+            Updated?.Invoke();
         }
     }
 
+    /// <summary>
+    /// Text content. Used for displaying text and icons.
+    /// </summary>
     public class TextContent : Content
     {
         private readonly TextNode _text;
@@ -108,6 +121,8 @@ public class Label : BaseComponent, IParent<Label.Content>
         }
     }
 
+    protected override IEnumerable<IComponent> SubComponents => Children;
+
     private readonly FancyNode _container = new();
     public override RenderableNode Node => _container;
 
@@ -134,6 +149,14 @@ public class Label : BaseComponent, IParent<Label.Content>
 
             UpdateStyle();
         }
+    }
+
+    public Label(IEnumerable<Content> children, bool gap = false)
+    {
+        _children = children.ToArray();
+        _container.SetChildren(_children.Select(c => c.Node));
+
+        Gap = gap;
     }
 
     protected override void UpdateStyle()

@@ -8,12 +8,15 @@ using BackupUtilities.Shared;
 
 namespace BackupUtilities.Config.Components.Job;
 
+/// <summary>
+/// A field for editing a property of a job.
+/// </summary>
+/// <typeparam name="T">The type of the property.</typeparam>
 public sealed class Field<T> : BaseButton
 {
     public event Action? Updated;
 
-    protected override IEnumerable<IComponent> SubComponents =>
-        [_label, _icon, _text, _separator, _validation, _preview];
+    protected override IEnumerable<IComponent> SubComponents => [_label];
 
     private readonly InputModal<T> _modal;
 
@@ -38,7 +41,8 @@ public sealed class Field<T> : BaseButton
         Expression<Func<T>> value,
         Func<T, string> preview,
         IInput<T> input,
-        Predicate<T>? validate = null
+        Predicate<T>? validate = null,
+        bool closeOnEnter = true
     )
     {
         _value = new(value);
@@ -53,9 +57,8 @@ public sealed class Field<T> : BaseButton
             Color = Color.Slate.Dark
         };
 
-        _label = new() { Children = [_icon, _text, _separator, _validation, _preview] };
-
-        _modal = new(input) { Title = _value.Name, Icon = _icon.Text };
+        _label = new([_icon, _text, _separator, _validation, _preview]);
+        _modal = new(input, closeOnEnter) { Title = _value.Name, Icon = _icon.Text };
 
         Clicked += OpenModal;
         _modal.Updated += UpdateValue;

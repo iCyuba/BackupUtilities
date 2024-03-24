@@ -21,7 +21,7 @@ public abstract class BaseTextInput<T> : BaseInteractive, IInput<T>
     }
 
     private readonly FancyNode _container =
-        new() { Color = Color.FromHex("#f1f5f9"), FlexGrow = 1 };
+        new() { BackgroundColor = Color.FromHex("#f1f5f9"), FlexGrow = 1 };
 
     private readonly TextNode _text = new(" ") { Color = Color.Slate.Dark, Trim = false };
 

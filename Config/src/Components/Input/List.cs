@@ -21,7 +21,12 @@ public class List<TValue, TInput> : BaseComponent, IInput<IEnumerable<TValue>>
     protected class ListContainer : UpDownView
     {
         private readonly FancyNode _container =
-            new() { FlexDirection = FlexDirection.Column, Width = new(Unit.Percent, 100) };
+            new()
+            {
+                FlexDirection = FlexDirection.Column,
+                Width = new(Unit.Percent, 100),
+                Overflow = Overflow.Scroll
+            };
         public override RenderableNode Node => _container;
 
         public ListContainer() => _container.SetGap(Gutter.Row, 1);
@@ -39,6 +44,16 @@ public class List<TValue, TInput> : BaseComponent, IInput<IEnumerable<TValue>>
                 FocusNext();
             else
                 base.HandleInput(key);
+        }
+
+        protected override void OnFocusChange(IInteractive? old, IInteractive? current)
+        {
+            base.OnFocusChange(old, current);
+
+            if (current == null)
+                return;
+
+            _container.ScrollTo = current.Node;
         }
     }
 
@@ -61,7 +76,13 @@ public class List<TValue, TInput> : BaseComponent, IInput<IEnumerable<TValue>>
         private readonly Button _remove = new("") { Accent = Color.Red };
         private readonly TInput _input = new();
 
-        private readonly FancyNode _container = new() { AlignItems = Align.FlexEnd, FlexGrow = 1 };
+        private readonly FancyNode _container =
+            new()
+            {
+                AlignItems = Align.FlexEnd,
+                FlexGrow = 1,
+                FlexShrink = 0
+            };
 
         public override RenderableNode Node => _container;
 
