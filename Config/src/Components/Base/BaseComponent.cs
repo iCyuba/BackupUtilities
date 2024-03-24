@@ -34,5 +34,57 @@ public abstract class BaseComponent : IComponent
             component.Unregister();
     }
 
+    /// <summary>
+    /// Update the style of the component
+    /// </summary>
     protected virtual void UpdateStyle() { }
+
+    private readonly Dictionary<BaseModal, Action> _callbacks = [];
+
+    /// <summary>
+    /// Open a modal
+    /// </summary>
+    /// <param name="modal">The modal to open</param>
+    protected void OpenModal(BaseModal modal)
+    {
+        Node.InsertChild(modal.Node, 0);
+
+        var view = View;
+
+        if (this is IView v)
+            view = v;
+
+        // Preserve focus
+        IInteractive? focus = null;
+        if (view != null)
+        {
+            modal.Register(view);
+            focus = view.Active;
+            view.Focus(modal);
+        }
+
+        _callbacks[modal] = Callback;
+        modal.Closed += Callback;
+
+        return;
+
+        void Callback() => CloseModal(modal, focus);
+    }
+
+    private void CloseModal(BaseModal modal, IInteractive? focus)
+    {
+        Node.RemoveChild(modal.Node);
+        modal.Unregister();
+
+        var view = View;
+
+        if (this is IView v)
+            view = v;
+
+        if (focus != null && view != null)
+            view.Focus(focus);
+
+        // Unregister the callback
+        modal.Closed -= _callbacks[modal];
+    }
 }

@@ -55,14 +55,10 @@ public sealed class Field<T> : BaseButton
 
         _label = new() { Children = [_icon, _text, _separator, _validation, _preview] };
 
-        _modal = new(input);
+        _modal = new(input) { Title = _value.Name, Icon = _icon.Text };
 
         Clicked += OpenModal;
         _modal.Updated += UpdateValue;
-        _modal.Closed += CloseModal;
-
-        _modal.Title.Text = _value.Name;
-        _modal.Title.Icon = _icon.Text;
 
         UpdateStyle();
     }
@@ -79,10 +75,7 @@ public sealed class Field<T> : BaseButton
     {
         _modal.Value = _value.Value;
 
-        Node.InsertChild(_modal.Node, Node.ChildCount);
-        _modal.Register(View!);
-
-        View!.Focus(_modal);
+        OpenModal(_modal);
     }
 
     private void UpdateValue()
@@ -91,13 +84,5 @@ public sealed class Field<T> : BaseButton
         UpdateStyle();
 
         Updated?.Invoke();
-    }
-
-    private void CloseModal()
-    {
-        Node.RemoveChild(_modal.Node);
-        _modal.Unregister();
-
-        View!.Focus(this);
     }
 }

@@ -60,7 +60,7 @@ public static partial class SharingClient
     /// </summary>
     /// <param name="jobs">The backup jobs to upload</param>
     /// <returns>The id of the uploaded config</returns>
-    public static async Task<string> Upload(BackupJob[] jobs)
+    public static async Task<string> Upload(IEnumerable<BackupJob> jobs)
     {
         using var client = new HttpClient();
 

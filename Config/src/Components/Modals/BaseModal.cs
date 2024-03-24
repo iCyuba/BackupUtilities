@@ -14,8 +14,19 @@ public abstract class BaseModal : TabView, IWindow
 {
     public event Action? Closed;
 
-    public Title Title { get; } = new();
+    public string Icon
+    {
+        get => _title.Icon;
+        set => _title.Icon = value;
+    }
 
+    public string Title
+    {
+        get => _title.Text;
+        set => _title.Text = value;
+    }
+
+    private readonly Title _title = new();
     protected readonly FancyNode Content = new() { FlexGrow = 1 };
     private readonly FancyNode _modal = new() { FlexDirection = FlexDirection.Column };
     private readonly FancyNode _overlay =
@@ -47,12 +58,12 @@ public abstract class BaseModal : TabView, IWindow
         _modal.SetBorder(Edge.All, 1);
         _modal.SetPadding(Edge.Horizontal, 1);
         _modal.SetGap(Gutter.Row, 1);
-        _modal.SetChildren([Title.Node, Content]);
+        _modal.SetChildren([_title.Node, Content]);
 
-        Title.Register(this);
+        _title.Register(this);
     }
 
-    protected void OnClose() => Closed?.Invoke();
+    protected void Close() => Closed?.Invoke();
 
     public override void HandleInput(ConsoleKeyInfo key)
     {
