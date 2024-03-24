@@ -28,6 +28,8 @@ public abstract class BaseWindow : TabView, IWindow
         App = app;
         app.WindowChange += OnFocusChange;
 
+        _container.SetPadding(Edge.All, 1);
+        _container.SetGap(Gutter.All, 1);
         _container.SetChildren([Title.Node, Content]);
     }
 

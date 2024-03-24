@@ -11,17 +11,35 @@ public abstract class RenderableNode : Node
     /// </summary>
     private static readonly Yoga.Config ConsoleConfig = new() { UseWebDefaults = true };
 
+    private Vector2 _scroll;
+
     /// <summary>
     /// Scroll position, when scrolling is enabled.
     /// </summary>
-    public Vector2 Scroll { get; set; }
+    public Vector2 Scroll
+    {
+        get => Overflow == Overflow.Scroll ? _scroll : default;
+        set
+        {
+            _scroll = value;
+            _scrollTo = null;
+        }
+    }
+
+    private Node? _scrollTo;
 
     /// <summary>
-    /// Is the absolute position fixed? (Only works with position type absolute)
+    /// The node to which the scroll is locked to.
     /// </summary>
-    public bool IsFixed { get; set; } = false;
-
-    private bool IsReallyFixed => IsFixed && PositionType == PositionType.Absolute;
+    public Node? ScrollTo
+    {
+        get => _scrollTo;
+        set
+        {
+            _scrollTo = value;
+            _scroll = default; // This will be set automatically during rendering
+        }
+    }
 
     protected RenderableNode()
         : base(ConsoleConfig)
@@ -50,7 +68,8 @@ public abstract class RenderableNode : Node
 
         // Get the offsets and sizes for the output
         Vector2 offsets = default;
-        Vector2 size = new(ComputedWidth, ComputedHeight);
+        Vector2 computed = new(ComputedWidth, ComputedHeight);
+        var size = computed;
 
         Queue<(RenderableNode, RenderOutput)> renders = [];
 
@@ -59,10 +78,18 @@ public abstract class RenderableNode : Node
             if (GetChild(i) is RenderableNode child && child.Display != Display.None)
                 RenderChild(child);
 
-        // Merge the child renders into the main buffer
         var bufferSize = size + offsets;
         var buffer = new Character[(int)bufferSize.Y, (int)bufferSize.X];
         var absolute = new Character[(int)bufferSize.Y, (int)bufferSize.X];
+
+        // Get the correct scroll position
+        if (_scrollTo != null)
+            _scroll = new(
+                _scrollTo.ComputedLeft + _scrollTo.ComputedWidth,
+                _scrollTo.ComputedTop + _scrollTo.ComputedHeight
+            );
+
+        var scroll = Vector2.Max(Scroll - computed, default);
 
         // Merge the children
         while (renders.Count > 0)
@@ -71,15 +98,15 @@ public abstract class RenderableNode : Node
 
             Vector2 pos = new(child.ComputedLeft, child.ComputedTop);
 
-            var scroll = child.IsReallyFixed || Overflow != Overflow.Scroll ? default : Scroll;
-            var renderOffsets = pos - render.Normal.Offsets + offsets - scroll;
-
+            var po = pos + offsets;
             if (child.PositionType == PositionType.Absolute)
-                absolute.Merge(render.Normal.Buffer, renderOffsets);
+                absolute.Merge(render.Normal.Buffer, po - render.Normal.Offsets);
             else
-                buffer.Merge(render.Normal.Buffer, renderOffsets);
+            {
+                buffer.Merge(render.Normal.Buffer, po - render.Normal.Offsets - scroll);
 
-            absolute.Merge(render.Absolute.Buffer, pos - render.Absolute.Offsets + offsets);
+                absolute.Merge(render.Absolute.Buffer, po - render.Absolute.Offsets);
+            }
         }
 
         // If position isn't static, merge absolute nodes into the main buffer
@@ -90,7 +117,7 @@ public abstract class RenderableNode : Node
 
         if (Overflow != Overflow.Visible)
         {
-            buffer = buffer.Expand(size, -offsets);
+            buffer = buffer.Expand(computed, -offsets);
             offsets = default;
         }
 

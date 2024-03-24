@@ -35,9 +35,6 @@ public class WindowTitle : BaseComponent
     private readonly Label.TextContent _brandingIcon =
         new("") { BackgroundColor = Color.Primary.Light };
 
-    public WindowTitle()
-    {
+    public WindowTitle() =>
         _label.Children = [_windowIcon, _windowName, _separator, _brandingIcon, _brandingName];
-        _label.Node.SetMargin(Edge.All, 1);
-    }
 }

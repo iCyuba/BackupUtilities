@@ -35,14 +35,14 @@ public sealed class EditorWindow : BaseWindow
         _jobList = new(jobs);
 
         Title.Icon = "";
-        Title.Text = $"{Jobs.Count} Backup Job{(Jobs.Count == 1 ? "" : "s")}";
+        // Title text is set in UpdateStyle
 
         Content.FlexDirection = FlexDirection.Column;
         Content.JustifyContent = Justify.SpaceBetween;
 
-        _buttonContainer.SetMargin(Edge.All, 1);
         _buttonContainer.SetChildren([_save.Node, _saveAs.Node, _share.Node, _exit.Node]);
 
+        Content.SetGap(Gutter.All, 1);
         Content.SetChildren([_jobList.Node, _buttonContainer]);
 
         _jobList.Updated += UpdateStyle;
@@ -62,7 +62,7 @@ public sealed class EditorWindow : BaseWindow
 
     protected override void UpdateStyle()
     {
-        base.UpdateStyle();
+        Title.Text = $"{Jobs.Count} Backup Job{(Jobs.Count == 1 ? "" : "s")}";
 
         _save.Color = Valid ? Color.Primary : Color.Slate;
         _saveAs.Color = Valid ? Color.Primary : Color.Slate;
