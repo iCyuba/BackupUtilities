@@ -49,7 +49,7 @@ public sealed class EditorWindow : BaseWindow
         _save.Clicked += Save;
         _saveAs.Clicked += SaveAs;
         _share.Clicked += Share;
-        _exit.Clicked += OnClose;
+        _exit.Clicked += Exit;
 
         _exit.Register(this);
         _jobList.Register(this);
@@ -60,13 +60,16 @@ public sealed class EditorWindow : BaseWindow
         UpdateStyle();
     }
 
+    public EditorWindow(App app)
+        : this([], app) { }
+
     protected override void UpdateStyle()
     {
         Title.Text = $"{Jobs.Count} Backup Job{(Jobs.Count == 1 ? "" : "s")}";
 
-        _save.Color = Valid ? Color.Primary : Color.Slate;
-        _saveAs.Color = Valid ? Color.Primary : Color.Slate;
-        _share.Color = Valid ? Color.Primary : Color.Slate;
+        _save.Disabled = !Valid;
+        _saveAs.Disabled = !Valid;
+        _share.Disabled = !Valid;
 
         // Enable / Disable the buttons
         if (Valid)
@@ -122,5 +125,18 @@ public sealed class EditorWindow : BaseWindow
                 Title = "Shared"
             }
         );
+    }
+
+    private void Exit()
+    {
+        ConfirmModal modal =
+            new("Are you sure you want to exit? Any unsaved changes will be lost. ")
+            {
+                Title = "Exit",
+                Destructive = true
+            };
+
+        OpenModal(modal);
+        modal.Confirmed += Close;
     }
 }

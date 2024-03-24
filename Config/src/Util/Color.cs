@@ -38,6 +38,22 @@ public partial record Color(byte R, byte G, byte B, byte A = 255)
             Dark = FromHex("#db2777")
         };
 
+    public static Group Emerald { get; } =
+        new()
+        {
+            Light = FromHex("#34d399"),
+            Regular = FromHex("#10b981"),
+            Dark = FromHex("#059669")
+        };
+
+    public static Group Red { get; } =
+        new()
+        {
+            Light = FromHex("#f87171"),
+            Regular = FromHex("#ef4444"),
+            Dark = FromHex("#dc2626")
+        };
+
     public static Group Primary => Pink;
 
     [GeneratedRegex(@"^[0-9A-F]{3,4}$|^[0-9A-F]{6}$|^[0-9A-F]{8}$", RegexOptions.IgnoreCase)]

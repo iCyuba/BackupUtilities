@@ -14,7 +14,7 @@ public class PathList : List<string, TextBox>
     {
         protected override int Padding => 12;
 
-        private readonly Button _browse = new("") { Color = Color.Slate };
+        private readonly Button _browse = new("");
 
         public PathListInput()
         {

@@ -17,7 +17,7 @@ public class AlertModal : BaseModal
     }
 
     private readonly TextNode _text;
-    private readonly Button _okay = new("", "Okay") { Color = Color.Slate };
+    private readonly Button _okay = new("", "Okay");
 
     public AlertModal(string text)
     {

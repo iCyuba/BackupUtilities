@@ -65,9 +65,9 @@ public sealed class Field<T> : BaseButton
 
     protected override void UpdateStyle()
     {
-        _icon.BackgroundColor = IsFocused ? Color.Primary.Dark : Color.Slate.Light;
+        _icon.BackgroundColor = IsFocused ? Color.Primary.Regular : Color.Slate.Light;
         _validation.Node.Display = Valid ? Yoga.Display.None : Yoga.Display.Flex;
-        _preview.BackgroundColor = IsFocused ? Color.Slate.Regular : Color.Slate.Light;
+        _preview.BackgroundColor = IsFocused ? Color.Slate.Dark : Color.Slate.Light;
         _preview.Text = Preview;
     }
 

@@ -6,13 +6,24 @@ namespace BackupUtilities.Config.Components.Generic;
 
 public sealed class Button : BaseButton
 {
-    private Color.Group _color = Util.Color.Primary;
-    public Color.Group Color
+    private Color.Group _accent = Color.Primary;
+    public Color.Group Accent
     {
-        get => _color;
+        get => _accent;
         set
         {
-            _color = value;
+            _accent = value;
+            UpdateStyle();
+        }
+    }
+
+    private bool _disabled;
+    public bool Disabled
+    {
+        get => _disabled;
+        set
+        {
+            _disabled = value;
             UpdateStyle();
         }
     }
@@ -41,10 +52,15 @@ public sealed class Button : BaseButton
     {
         if (_text != null)
         {
-            _text.Bold = IsFocused;
-            _text.BackgroundColor = IsFocused ? Color.Dark : Color.Regular;
+            _text.BackgroundColor = IsFocused && !Disabled ? Color.Slate.Dark : Color.Slate.Light;
+            _text.Strikethrough = Disabled;
+            _text.Bold = !Disabled;
         }
 
-        _icon.BackgroundColor = IsFocused ? Color.Regular : Color.Light;
+        _icon.BackgroundColor = Disabled
+            ? Color.Slate.Light
+            : IsFocused
+                ? Accent.Regular
+                : Color.Slate.Regular;
     }
 }

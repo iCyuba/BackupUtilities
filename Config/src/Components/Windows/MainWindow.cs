@@ -1,5 +1,6 @@
 using BackupUtilities.Config.Components.Generic;
 using BackupUtilities.Config.Components.Modals;
+using BackupUtilities.Config.Nodes;
 using BackupUtilities.Config.Yoga;
 using BackupUtilities.Shared;
 using NativeFileDialogSharp;
@@ -8,6 +9,16 @@ namespace BackupUtilities.Config.Components.Windows;
 
 public class MainWindow : BaseWindow
 {
+    private readonly FancyNode _buttons =
+        new()
+        {
+            JustifyContent = Justify.SpaceEvenly,
+            AlignItems = Align.Center,
+            FlexWrap = Wrap.Wrap,
+            MaxWidth = new(Unit.Percent, 75),
+            MaxHeight = new(Unit.Percent, 50),
+        };
+
     private readonly Button _new = new("", "New config");
     private readonly Button _file = new("", "Open config");
     private readonly Button _shared = new("", "Open shared config");
@@ -19,17 +30,19 @@ public class MainWindow : BaseWindow
         Title.Icon = "";
         Title.Text = "Config Editor";
 
-        Content.FlexDirection = FlexDirection.Row;
+        _buttons.SetChildren([_new.Node, _file.Node, _shared.Node, _quit.Node]);
+        _buttons.SetGap(Gutter.Column, 6);
+        _buttons.SetGap(Gutter.Row, 2);
+
         Content.JustifyContent = Justify.Center;
         Content.AlignItems = Align.Center;
-        Content.SetGap(Gutter.All, 1);
+        Content.SetGap(Gutter.All, 5);
+        Content.SetChildren([_buttons]);
 
-        Content.SetChildren([_new.Node, _file.Node, _shared.Node, _quit.Node]);
-
-        _new.Clicked += () => app.SetWindow(new EditorWindow([new()], App));
+        _new.Clicked += () => app.SetWindow(new EditorWindow(App));
         _file.Clicked += File;
         _shared.Clicked += Shared;
-        _quit.Clicked += OnClose;
+        _quit.Clicked += Close;
 
         _new.Register(this);
         _file.Register(this);

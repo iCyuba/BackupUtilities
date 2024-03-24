@@ -9,7 +9,7 @@ public class JobList : LeftRightView
 {
     public event Action? Updated;
 
-    private readonly NewButton _button = new();
+    private readonly NewButton _newButton = new();
     private readonly FancyNode _container = new();
     public override RenderableNode Node => _container;
 
@@ -23,17 +23,20 @@ public class JobList : LeftRightView
             {
                 card.Unregister();
                 card.Updated -= Update;
+                card.Deleted -= Remove;
             }
 
             _cards = value.Select((j, i) => new Card(j) { Index = i }).ToList();
 
-            _container.SetChildren(_cards.Select(c => c.Node));
-            _container.InsertChild(_button.Node, _container.ChildCount); // The previous line will remove the button
+            if (_cards.Count != 0)
+                _container.SetChildren(_cards.Select(c => c.Node));
+            _container.InsertChild(_newButton.Node, _container.ChildCount); // The previous line will remove the button
 
             foreach (var card in _cards)
             {
                 card.Register(this);
                 card.Updated += Update;
+                card.Deleted += Remove;
             }
 
             // Try focusing the first card. This will focus the button if no cards are available.
@@ -41,11 +44,11 @@ public class JobList : LeftRightView
         }
     }
 
-    public bool Valid => _cards.All(c => c.Valid);
+    public bool Valid => _cards.All(c => c.Valid) && _cards.Count != 0;
 
     public JobList(IEnumerable<BackupJob> jobs)
     {
-        _button.Register(this);
+        _newButton.Register(this);
 
         _cards = [];
         Jobs = jobs;
@@ -54,11 +57,10 @@ public class JobList : LeftRightView
         _container.AlignItems = Align.FlexEnd;
         _container.FlexWrap = Wrap.Wrap;
         _container.Overflow = Overflow.Scroll;
-        _container.SetPadding(Edge.Left, 1);
         _container.SetGap(Gutter.Column, 2);
         _container.SetGap(Gutter.Row, 1);
 
-        _button.Clicked += Add;
+        _newButton.Button.Clicked += Add;
     }
 
     private void Update() => Updated?.Invoke();
@@ -70,11 +72,33 @@ public class JobList : LeftRightView
 
         card.Register(this);
         card.Updated += Update;
+        card.Deleted += Remove;
         _container.InsertChild(card.Node, _cards.Count);
         _cards.Add(card);
 
         // Focus the new card
         Focus(card);
+
+        Update();
+    }
+
+    private void Remove()
+    {
+        var card = (Card)Active!;
+
+        _container.RemoveChild(card.Node);
+        _cards.Remove(card);
+        card.Unregister();
+        card.Updated -= Update;
+        card.Deleted -= Remove;
+
+        // Update the indices
+        for (var i = 0; i < _cards.Count; i++)
+            _cards[i].Index = i;
+
+        // Focus the next card
+        if (_cards.Count > 0)
+            Focus(_cards.First());
 
         Update();
     }

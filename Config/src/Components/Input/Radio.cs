@@ -50,7 +50,7 @@ public sealed class Radio<T> : BaseView, IInput<T>
         {
             _text.Bold = IsFocused;
             _text.Color = IsFocused ? Color.Slate.Dark : Color.Slate.Regular;
-            _icon.BackgroundColor = IsFocused ? Color.Slate.Regular : Color.Slate.Light;
+            _icon.BackgroundColor = IsFocused ? Color.Primary.Regular : Color.Slate.Light;
             _icon.Text = IsFocused ? "" : " ";
         }
     }

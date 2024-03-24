@@ -58,7 +58,7 @@ public class List<TValue, TInput> : BaseComponent, IInput<IEnumerable<TValue>>
 
         protected virtual int Padding => 6;
 
-        private readonly Button _remove = new("") { Color = Color.Slate };
+        private readonly Button _remove = new("") { Accent = Color.Red };
         private readonly TInput _input = new();
 
         private readonly FancyNode _container = new() { AlignItems = Align.FlexEnd, FlexGrow = 1 };
@@ -172,7 +172,7 @@ public class List<TValue, TInput> : BaseComponent, IInput<IEnumerable<TValue>>
             FlexGrow = 1
         };
 
-    private readonly Button _add = new("", "Add") { Color = Color.Slate };
+    private readonly Button _add = new("", "Add");
 
     protected readonly ListContainer InputContainer = new();
     public override RenderableNode Node => _container;

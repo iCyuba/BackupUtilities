@@ -1,5 +1,6 @@
 using BackupUtilities.Config.Components.Generic;
 using BackupUtilities.Config.Components.Input;
+using BackupUtilities.Config.Components.Modals;
 using BackupUtilities.Config.Components.Views;
 using BackupUtilities.Config.Nodes;
 using BackupUtilities.Config.Util;
@@ -11,6 +12,7 @@ namespace BackupUtilities.Config.Components.Job;
 public sealed class Card : UpDownView
 {
     public event Action? Updated;
+    public event Action? Deleted;
 
     public BackupJob Job { get; }
     public int Index
@@ -28,6 +30,7 @@ public sealed class Card : UpDownView
     public override RenderableNode Node => _container;
 
     private readonly Title _title = new() { Icon = "" };
+    private readonly Button _delete = new("", "Delete") { Accent = Color.Red };
 
     public Card(BackupJob job)
     {
@@ -77,6 +80,8 @@ public sealed class Card : UpDownView
         _container.SetBorder(Edge.Vertical, 1);
         _container.SetGap(Gutter.Row, 1);
 
+        _delete.Node.SetMarginAuto(Edge.Horizontal);
+
         _container.SetChildren(
             [
                 _title.Node,
@@ -86,7 +91,8 @@ public sealed class Card : UpDownView
                 _timing.Node,
                 retention.Node,
                 ignore.Node,
-                output.Node
+                output.Node,
+                _delete.Node
             ]
         );
 
@@ -99,6 +105,7 @@ public sealed class Card : UpDownView
         retention.Register(this);
         ignore.Register(this);
         output.Register(this);
+        _delete.Register(this);
 
         _sources.Updated += Update;
         _targets.Updated += Update;
@@ -107,7 +114,22 @@ public sealed class Card : UpDownView
         retention.Updated += Update;
         ignore.Updated += Update;
         output.Updated += Update;
+        _delete.Clicked += Delete;
     }
 
     private void Update() => Updated?.Invoke();
+
+    private void Delete()
+    {
+        ConfirmModal modal =
+            new("Are you sure you want to delete this backup job?")
+            {
+                Title = "Delete",
+                Destructive = true
+            };
+
+        OpenModal(modal);
+
+        modal.Confirmed += () => Deleted?.Invoke();
+    }
 }

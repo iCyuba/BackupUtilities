@@ -33,5 +33,5 @@ public abstract class BaseWindow : TabView, IWindow
         _container.SetChildren([Title.Node, Content]);
     }
 
-    protected void OnClose() => Closed?.Invoke();
+    protected void Close() => Closed?.Invoke();
 }

@@ -73,6 +73,12 @@ public class Label : BaseComponent, IParent<Label.Content>
             set => _text.Bold = value;
         }
 
+        public bool Strikethrough
+        {
+            get => _text.Strikethrough;
+            set => _text.Strikethrough = value;
+        }
+
         private Color? _color = Color.White;
         public Color? Color
         {
