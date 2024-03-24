@@ -31,10 +31,10 @@ public partial class BackupJob
         Folder,
         Tar,
 
-        [Description("tar.gz")]
+        [Description("Tar.gz")]
         TarGz,
 
-        [Description("tar.bz2")]
+        [Description("Tar.bz2")]
         TarBz2,
         Zip
     }

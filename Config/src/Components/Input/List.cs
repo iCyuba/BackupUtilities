@@ -56,6 +56,8 @@ public class List<TValue, TInput> : BaseComponent, IInput<IEnumerable<TValue>>
             set => _input.Value = value;
         }
 
+        protected virtual int Padding => 6;
+
         private readonly Button _remove = new("") { Color = Color.Slate };
         private readonly TInput _input = new();
 
@@ -83,13 +85,14 @@ public class List<TValue, TInput> : BaseComponent, IInput<IEnumerable<TValue>>
             Focused += UpdateStyle;
             Blurred += UpdateStyle;
 
-            UpdateStyle();
+            _remove.Node.Display = Display.None;
+            _input.Node.SetPadding(Edge.Right, 6);
         }
 
-        protected sealed override void UpdateStyle()
+        protected override void UpdateStyle()
         {
             _remove.Node.Display = IsFocused ? Display.Flex : Display.None;
-            _input.Node.SetPadding(Edge.Right, IsFocused ? 0 : 6);
+            _input.Node.SetPadding(Edge.Right, IsFocused ? 0 : Padding);
         }
 
         protected void Update() => Updated?.Invoke();
@@ -124,6 +127,7 @@ public class List<TValue, TInput> : BaseComponent, IInput<IEnumerable<TValue>>
                     _inputs[i].Updated -= Update;
                     _inputs[i].Removed -= Remove;
                     _inputs[i].Unregister();
+                    InputContainer.RemoveChild(_inputs[i].Node);
                 }
 
                 _inputs.RemoveRange(inputs.Length, _inputs.Count - inputs.Length);
@@ -138,6 +142,7 @@ public class List<TValue, TInput> : BaseComponent, IInput<IEnumerable<TValue>>
                 foreach (var input in newInputs)
                 {
                     input.Register(InputContainer);
+                    InputContainer.AddChild(input.Node);
                     input.Updated += Update;
                     input.Removed += Remove;
                 }

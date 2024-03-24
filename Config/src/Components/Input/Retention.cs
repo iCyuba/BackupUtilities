@@ -13,7 +13,15 @@ public sealed class Retention : BaseComponent, IInput<BackupJob.BackupRetention>
 {
     public event Action? Updated;
 
-    public BackupJob.BackupRetention Value { get; set; }
+    public BackupJob.BackupRetention Value
+    {
+        get => new() { Size = _size.Value, Count = _count.Value };
+        set
+        {
+            _size.Value = value.Size;
+            _count.Value = value.Count;
+        }
+    }
 
     protected override IEnumerable<IComponent> SubComponents => [_size, _count];
 
@@ -29,6 +37,7 @@ public sealed class Retention : BaseComponent, IInput<BackupJob.BackupRetention>
 
     private readonly FancyNode _container =
         new() { FlexDirection = FlexDirection.Column, FlexGrow = 1 };
+
     public override RenderableNode Node => _container;
 
     public Retention()
@@ -42,19 +51,7 @@ public sealed class Retention : BaseComponent, IInput<BackupJob.BackupRetention>
         _container.SetChildren([_sizeContainer, _countContainer]);
         _container.SetGap(Gutter.Row, 1);
 
-        _size.Updated += Update;
-        _count.Updated += Update;
-    }
-
-    private void Update()
-    {
-        var val = Value;
-
-        val.Count = _count.Value;
-        val.Size = _size.Value;
-
-        Value = val;
-
-        Updated?.Invoke();
+        _size.Updated += () => Updated?.Invoke();
+        _count.Updated += () => Updated?.Invoke();
     }
 }
