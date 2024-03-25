@@ -27,12 +27,12 @@ public sealed class Retention : BaseComponent, IInput<BackupJob.BackupRetention>
 
     private readonly FancyNode _sizeContainer =
         new() { JustifyContent = Justify.SpaceBetween, FlexGrow = 1 };
-    private readonly TextNode _sizeLabel = new("Size") { Color = Color.Slate.Dark };
+    private readonly TextNode _sizeLabel = new("Size") { Color = Color.Foreground.Primary };
     private readonly NumberBox _size = new() { Min = 0 };
 
     private readonly FancyNode _countContainer =
         new() { JustifyContent = Justify.SpaceBetween, FlexGrow = 1 };
-    private readonly TextNode _countLabel = new("Count") { Color = Color.Slate.Dark };
+    private readonly TextNode _countLabel = new("Count") { Color = Color.Foreground.Primary };
     private readonly NumberBox _count = new() { Min = 0 };
 
     private readonly FancyNode _container =

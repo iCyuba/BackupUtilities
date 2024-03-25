@@ -28,13 +28,13 @@ public abstract class BaseWindow : TabView, IWindow
     private readonly Label _label;
     private readonly Label.TextContent _windowName = new("") { Bold = true };
     private readonly Label.TextContent _windowIcon =
-        new("") { BackgroundColor = Color.Primary.Light };
+        new("") { BackgroundColor = Color.Primary.Secondary };
 
     private readonly Label.Content _separator = new() { Style = Label.Content.ContentStyle.None };
 
     private readonly Label.TextContent _brandingName = new("Backup Utilities") { Bold = true };
     private readonly Label.TextContent _brandingIcon =
-        new("") { BackgroundColor = Color.Primary.Light };
+        new("") { BackgroundColor = Color.Primary.Secondary };
 
     private readonly FancyNode _container =
         new() { FlexDirection = FlexDirection.Column, FlexGrow = 1 };

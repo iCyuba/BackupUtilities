@@ -38,7 +38,7 @@ public sealed class Label : BaseComponent
             }
         }
 
-        private Color? _backgroundColor = Color.Primary.Regular;
+        private Color? _backgroundColor = Color.Primary.Primary;
         public Color? BackgroundColor
         {
             get => _backgroundColor;

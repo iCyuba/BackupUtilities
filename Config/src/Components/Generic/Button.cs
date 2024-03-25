@@ -54,15 +54,15 @@ public sealed class Button : BaseButton
     {
         if (_text != null)
         {
-            _text.BackgroundColor = IsFocused && !Disabled ? Color.Slate.Dark : Color.Slate.Light;
+            _text.BackgroundColor = IsFocused && !Disabled ? Color.Focus : Color.Element.Secondary;
             _text.Strikethrough = Disabled;
             _text.Bold = !Disabled;
         }
 
         _icon.BackgroundColor = Disabled
-            ? Color.Slate.Light
+            ? Color.Element.Secondary
             : IsFocused
-                ? Accent.Regular
-                : Color.Slate.Regular;
+                ? Accent.Primary
+                : Color.Element.Primary;
     }
 }

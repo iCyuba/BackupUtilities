@@ -14,7 +14,7 @@ public sealed class NewButton : BaseComponent
     protected override IEnumerable<IComponent> SubComponents => [Button];
 
     private readonly FancyNode _container =
-        new() { BackgroundColor = Color.FromHex("#e2e8f0"), FlexShrink = 0 };
+        new() { BackgroundColor = Color.App.Secondary, FlexShrink = 0 };
 
     public Button Button { get; } = new("", "New job");
 

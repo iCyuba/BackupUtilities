@@ -85,7 +85,7 @@ public sealed class Card : UpDownView
 
         _container.FlexShrink = 0;
         _container.FlexDirection = FlexDirection.Column;
-        _container.BackgroundColor = Color.FromHex("#e2e8f0");
+        _container.BackgroundColor = Color.App.Secondary;
 
         _container.SetBorder(Edge.Horizontal, 2);
         _container.SetBorder(Edge.Vertical, 1);

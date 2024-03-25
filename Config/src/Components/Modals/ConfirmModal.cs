@@ -34,7 +34,7 @@ public class ConfirmModal : BaseModal
         Icon = "";
         Title = "Confirm";
 
-        _text = new TextNode(text) { Color = Color.Slate.Dark };
+        _text = new TextNode(text) { Color = Color.Foreground.Primary };
 
         _buttons.SetChildren([_no.Node, _yes.Node]);
         _buttons.SetGap(Gutter.Column, 1);

@@ -24,8 +24,6 @@ public sealed class Title : BaseComponent
         set => _icon.Text = value;
     }
 
-    public Color.Group Color { get; init; } = Util.Color.Slate;
-
     private readonly Label.TextContent _icon = new("");
     private readonly Label.TextContent _text = new("");
     private readonly Label _label;
@@ -37,12 +35,7 @@ public sealed class Title : BaseComponent
         _label = new([_icon, _text]);
         _label.Node.SetMarginAuto(Edge.Horizontal);
 
-        UpdateStyle();
-    }
-
-    protected override void UpdateStyle()
-    {
-        _icon.BackgroundColor = Color.Regular;
-        _text.BackgroundColor = Color.Light;
+        _icon.BackgroundColor = Color.Element.Primary;
+        _text.BackgroundColor = Color.Element.Secondary;
     }
 }

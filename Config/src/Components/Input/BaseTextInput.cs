@@ -21,9 +21,9 @@ public abstract class BaseTextInput<T> : BaseInteractive, IInput<T>
     }
 
     private readonly FancyNode _container =
-        new() { BackgroundColor = Color.FromHex("#f1f5f9"), FlexGrow = 1 };
+        new() { BackgroundColor = Color.Element.Tertiary, FlexGrow = 1 };
 
-    private readonly TextNode _text = new(" ") { Color = Color.Slate.Dark, Trim = false };
+    private readonly TextNode _text = new(" ") { Color = Color.Foreground.Secondary, Trim = false };
 
     public override RenderableNode Node => _container;
 
@@ -37,7 +37,9 @@ public abstract class BaseTextInput<T> : BaseInteractive, IInput<T>
         _container.SetChildren([_text]);
     }
 
-#pragma warning disable CA2245 // Do not assign a property to itself
-    protected override void UpdateStyle() => Text = Text;
-#pragma warning restore CA2245 // Do not assign a property to itself
+    protected override void UpdateStyle()
+    {
+        _text.Text = Text + Cursor;
+        _text.Color = IsFocused ? Color.Foreground.Primary : Color.Foreground.Secondary;
+    }
 }

@@ -24,7 +24,7 @@ public class AlertModal : BaseModal
         Icon = "";
         Title = "Alert";
 
-        _text = new TextNode(text) { Color = Color.Slate.Dark };
+        _text = new TextNode(text) { Color = Color.Foreground.Primary };
 
         Content.SetChildren([_text, _okay.Node]);
         Content.SetGap(Gutter.Row, 1);

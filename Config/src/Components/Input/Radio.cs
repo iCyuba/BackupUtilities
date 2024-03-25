@@ -49,8 +49,8 @@ public sealed class Radio<T> : BaseView, IInput<T>
         protected override void UpdateStyle()
         {
             _text.Bold = IsFocused;
-            _text.Color = IsFocused ? Color.Slate.Dark : Color.Slate.Regular;
-            _icon.BackgroundColor = IsFocused ? Color.Primary.Regular : Color.Slate.Light;
+            _text.Color = IsFocused ? Color.Foreground.Primary : Color.Foreground.Secondary;
+            _icon.BackgroundColor = IsFocused ? Color.Primary.Primary : Color.Element.Secondary;
             _icon.Text = IsFocused ? "" : " ";
         }
     }

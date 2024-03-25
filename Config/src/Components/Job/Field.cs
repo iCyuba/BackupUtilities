@@ -25,7 +25,7 @@ public sealed class Field<T> : BaseButton
     private readonly Label.TextContent _text;
     private readonly Label.Content _separator = new() { Style = Label.Content.ContentStyle.None };
     private readonly Label.TextContent _validation =
-        new("") { Style = Label.Content.ContentStyle.None, Color = Color.FromHex("#f59e0b") };
+        new("") { Style = Label.Content.ContentStyle.None, Color = Color.Yellow.Primary };
     private readonly Label.TextContent _preview = new("") { Bold = true };
     public override RenderableNode Node => _label.Node;
 
@@ -54,7 +54,7 @@ public sealed class Field<T> : BaseButton
         {
             Style = Label.Content.ContentStyle.None,
             Bold = true,
-            Color = Color.Slate.Dark
+            Color = Color.Foreground.Primary
         };
 
         _label = new([_icon, _text, _separator, _validation, _preview]);
@@ -68,9 +68,9 @@ public sealed class Field<T> : BaseButton
 
     protected override void UpdateStyle()
     {
-        _icon.BackgroundColor = IsFocused ? Color.Primary.Regular : Color.Slate.Light;
+        _icon.BackgroundColor = IsFocused ? Color.Primary.Primary : Color.Element.Secondary;
         _validation.Node.Display = Valid ? Yoga.Display.None : Yoga.Display.Flex;
-        _preview.BackgroundColor = IsFocused ? Color.Slate.Dark : Color.Slate.Light;
+        _preview.BackgroundColor = IsFocused ? Color.Element.Primary : Color.Element.Secondary;
         _preview.Text = Preview;
     }
 
