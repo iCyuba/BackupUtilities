@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using BackupUtilities.Config.Components.Views;
+using System.Text;
 using BackupUtilities.Config.Components.Windows;
 using BackupUtilities.Config.Nodes;
 
@@ -22,22 +22,24 @@ public class App
 
         _running = true;
 
+        Console.OutputEncoding = Encoding.UTF8;
         Console.Title = "Backup Utilities: Config Editor";
         Console.CursorVisible = false;
         Console.Clear();
 
         // Handle screen resizing
         // This doesn't work on Windows, I'm sorry to all 0 of my Windows users
-#pragma warning disable CA1416
-        var resizeRegistration = PosixSignalRegistration.Create(
-            PosixSignal.SIGWINCH,
-            _ =>
-            {
-                _root.CalculateLayout(Console.WindowWidth, Console.WindowHeight);
-                _root.Print();
-            }
-        );
-#pragma warning restore CA1416
+
+        PosixSignalRegistration? resizeRegistration = null;
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            resizeRegistration = PosixSignalRegistration.Create(
+                PosixSignal.SIGWINCH,
+                _ =>
+                {
+                    _root.CalculateLayout(Console.WindowWidth, Console.WindowHeight);
+                    _root.Print();
+                }
+            );
 
         while (_windows.TryPeek(out var window))
         {
@@ -56,7 +58,7 @@ public class App
             window.HandleInput(key);
         }
 
-        resizeRegistration.Dispose();
+        resizeRegistration?.Dispose();
         _running = false;
     }
 
