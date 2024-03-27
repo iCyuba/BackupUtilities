@@ -52,17 +52,50 @@ public class MainWindow : BaseWindow
 
     private void File()
     {
-        var path = Dialog.FileOpen("json");
-
-        if (!path.IsOk)
+        try
         {
-            // Show an alert if the user cancels the dialog
-            OpenModal(new AlertModal("No file selected.") { Title = "Error", Icon = "" });
-            return;
+            // Try opening the native file picker
+            var path = Dialog.FileOpen("json");
+
+            if (!path.IsOk)
+            {
+                ShowAlert();
+                return;
+            }
+
+            Open(path.Path);
+        }
+        catch
+        {
+            // Fallback to a textbox modal
+            InputModal<string> modal = new(new TextBox()) { Icon = "", Title = "File path" };
+            OpenModal(modal);
+
+            modal.Closed += () =>
+            {
+                if (modal.Value.EndsWith(".json"))
+                    Open(modal.Value);
+                else
+                    ShowAlert();
+            };
         }
 
-        var jobs = BackupJob.LoadFromConfig(path.Path, false);
-        App.SetWindow(new EditorWindow(jobs, App) { SavePath = path.Path });
+        // Show an alert if the user cancels the dialog / inputs an invalid path
+        void ShowAlert() =>
+            OpenModal(new AlertModal("No file selected.") { Title = "Error", Icon = "" });
+
+        void Open(string path)
+        {
+            try
+            {
+                var jobs = BackupJob.LoadFromConfig(path, false);
+                App.SetWindow(new EditorWindow(jobs, App) { SavePath = path });
+            }
+            catch
+            {
+                OpenModal(new AlertModal("Could not open file!") { Icon = "", Title = "Error" });
+            }
+        }
     }
 
     private void Shared()

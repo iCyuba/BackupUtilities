@@ -28,13 +28,17 @@ public class PathList : List<string, TextBox>
 
         public void Browse()
         {
-            var folder = Dialog.FolderPicker();
+            try
+            {
+                var folder = Dialog.FolderPicker();
 
-            if (!folder.IsOk)
-                return;
+                if (!folder.IsOk)
+                    return;
 
-            Value = folder.Path;
-            Update();
+                Value = folder.Path;
+                Update();
+            }
+            catch { }
         }
 
         protected override void UpdateStyle()

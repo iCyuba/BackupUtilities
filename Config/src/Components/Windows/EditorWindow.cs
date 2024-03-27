@@ -94,8 +94,16 @@ public sealed class EditorWindow : BaseWindow
             return;
         }
 
-        string json = JsonSerializer.Serialize(Jobs, Json.SerializerOptionsPretty);
-        File.WriteAllText(SavePath, json);
+        try
+        {
+            string json = JsonSerializer.Serialize(Jobs, Json.SerializerOptionsPretty);
+            File.WriteAllText(SavePath, json);
+        }
+        catch
+        {
+            OpenModal(new AlertModal("Could not save file!") { Icon = "", Title = "Error" });
+            return;
+        }
 
         // Show confirmation
         OpenModal(new AlertModal("Backup jobs saved!") { Title = "Saved" });
@@ -103,15 +111,38 @@ public sealed class EditorWindow : BaseWindow
 
     private void SaveAs()
     {
-        var path = Dialog.FileSave("json");
-        if (path.IsOk)
+        try
         {
-            SavePath = path.Path;
-            Save();
+            // Try opening the native file picker
+            var path = Dialog.FileSave("json");
+            if (path.IsOk)
+            {
+                SavePath = path.Path;
+                Save();
+            }
+            else
+                ShowAlert();
         }
-        else
-            // Show an alert
+        catch
+        {
+            // Fall back to a modal with a textbox
+            InputModal<string> modal = new(new TextBox()) { Icon = "", Title = "File path" };
+            OpenModal(modal);
+
+            modal.Closed += () =>
+            {
+                if (modal.Value.EndsWith(".json"))
+                    SavePath = modal.Value;
+                else
+                    ShowAlert();
+            };
+        }
+
+        // Show an alert
+        void ShowAlert()
+        {
             OpenModal(new AlertModal("No path selected.") { Title = "Invalid path", Icon = "" });
+        }
     }
 
     private void Share()
