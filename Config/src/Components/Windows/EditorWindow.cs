@@ -113,6 +113,9 @@ public sealed class EditorWindow : BaseWindow
     {
         try
         {
+            if (Environment.GetCommandLineArgs().Contains("--no-dialog"))
+                throw new Exception();
+
             // Try opening the native file picker
             var path = Dialog.FileSave("json");
             if (path.IsOk)

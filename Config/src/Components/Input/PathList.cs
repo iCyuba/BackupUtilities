@@ -28,6 +28,9 @@ public class PathList : List<string, TextBox>
 
         public void Browse()
         {
+            if (Environment.GetCommandLineArgs().Contains("--no-dialog"))
+                return;
+
             try
             {
                 var folder = Dialog.FolderPicker();

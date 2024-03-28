@@ -54,6 +54,9 @@ public class MainWindow : BaseWindow
     {
         try
         {
+            if (Environment.GetCommandLineArgs().Contains("--no-dialog"))
+                throw new Exception();
+
             // Try opening the native file picker
             var path = Dialog.FileOpen("json");
 
