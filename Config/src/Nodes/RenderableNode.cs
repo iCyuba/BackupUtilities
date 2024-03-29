@@ -44,6 +44,68 @@ public abstract class RenderableNode : Node
         }
     }
 
+    /// <summary>
+    /// The computed top position of the node relative to the root node.
+    /// </summary>
+    public float ComputedTotalTop
+    {
+        get
+        {
+            float top = ComputedTop;
+
+            bool contained = PositionType != PositionType.Absolute;
+            for (var node = Parent; node != null; node = node.Parent)
+            {
+                if (node.PositionType != PositionType.Static)
+                    contained = true;
+
+                top +=
+                    node.ComputedTop
+                    - (
+                        contained && node is RenderableNode renderable
+                            ? float.Max(renderable.Scroll.Y - node.ComputedHeight, 0)
+                            : 0
+                    );
+
+                if (node.PositionType == PositionType.Absolute)
+                    contained = false;
+            }
+
+            return top;
+        }
+    }
+
+    /// <summary>
+    /// The computed left position of the node relative to the root node.
+    /// </summary>
+    public float ComputedTotalLeft
+    {
+        get
+        {
+            float left = ComputedLeft;
+
+            bool contained = PositionType != PositionType.Absolute;
+            for (var node = Parent; node != null; node = node.Parent)
+            {
+                if (node.PositionType != PositionType.Static)
+                    contained = true;
+
+                left +=
+                    node.ComputedLeft
+                    - (
+                        contained && node is RenderableNode renderable
+                            ? float.Max(renderable.Scroll.X - node.ComputedWidth, 0)
+                            : 0
+                    );
+
+                if (node.PositionType == PositionType.Absolute)
+                    contained = false;
+            }
+
+            return left;
+        }
+    }
+
     protected RenderableNode()
         : base(ConsoleConfig)
     {

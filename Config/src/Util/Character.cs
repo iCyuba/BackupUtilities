@@ -32,10 +32,10 @@ public struct Character(string value = "")
     {
         string ansi = "";
 
-        if (Foreground != previous?.Foreground)
+        if (previous == null || Foreground != previous?.Foreground)
             ansi += ForegroundAnsi;
 
-        if (Background != previous?.Background)
+        if (previous == null || Background != previous?.Background)
             ansi += BackgroundAnsi;
 
         if (Bold != previous?.Bold)

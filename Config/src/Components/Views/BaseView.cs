@@ -1,4 +1,5 @@
 using BackupUtilities.Config.Components.Base;
+using BackupUtilities.Config.Util;
 
 namespace BackupUtilities.Config.Components.Views;
 
@@ -61,6 +62,37 @@ public abstract class BaseView : BaseInteractive, IView
     }
 
     public override void HandleInput(ConsoleKeyInfo key) => Active?.HandleInput(key);
+
+    public override void HandleMouse(Mouse mouse)
+    {
+        if (InputCapturedInside)
+        {
+            Active!.HandleMouse(mouse);
+            return;
+        }
+
+        foreach (var interactive in Interactive)
+        {
+            float top = interactive.Node.ComputedTotalTop;
+            float left = interactive.Node.ComputedTotalLeft;
+            float width = interactive.Node.ComputedWidth;
+            float height = interactive.Node.ComputedHeight;
+
+            bool contained =
+                mouse.Position.X > left
+                && mouse.Position.X <= left + width
+                && mouse.Position.Y > top
+                && mouse.Position.Y <= top + height;
+
+            if (!contained)
+                continue;
+
+            interactive.HandleMouse(mouse);
+            Focus(interactive);
+
+            break;
+        }
+    }
 
     protected virtual void OnFocusChange(IInteractive? old, IInteractive? current) =>
         FocusChange?.Invoke(old, current);

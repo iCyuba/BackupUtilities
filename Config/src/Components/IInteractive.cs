@@ -1,3 +1,5 @@
+using BackupUtilities.Config.Util;
+
 namespace BackupUtilities.Config.Components;
 
 /// <summary>
@@ -9,4 +11,5 @@ public interface IInteractive : IComponent
     public bool CapturesInput { get; }
 
     void HandleInput(ConsoleKeyInfo key);
+    void HandleMouse(Mouse mouse);
 }

@@ -12,7 +12,6 @@ public class RootNode : RenderableNode
     public new static PositionType PositionType => PositionType.Relative;
 
     public RootNode()
-        : base()
     {
         // Set position to relative (if this wasn't set, absolutely positioned nodes would not render at all)
         base.PositionType = PositionType.Relative;
@@ -41,7 +40,5 @@ public class RootNode : RenderableNode
             Console.Write(character.ToANSIString(last));
             last = character;
         }
-
-        Console.ResetColor();
     }
 }

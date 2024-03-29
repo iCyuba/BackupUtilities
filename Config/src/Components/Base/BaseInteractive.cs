@@ -1,4 +1,5 @@
 using BackupUtilities.Config.Components.Views;
+using BackupUtilities.Config.Util;
 
 namespace BackupUtilities.Config.Components.Base;
 
@@ -16,6 +17,8 @@ public abstract class BaseInteractive : BaseComponent, IInteractive
     public virtual bool CapturesInput => false;
 
     public virtual void HandleInput(ConsoleKeyInfo key) { }
+
+    public virtual void HandleMouse(Mouse mouse) { }
 
     public override void Register(IView view)
     {

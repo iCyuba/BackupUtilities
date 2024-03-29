@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using BackupUtilities.Config.Components.Windows;
 using BackupUtilities.Config.Nodes;
+using BackupUtilities.Config.Util;
 
 namespace BackupUtilities.Config;
 
@@ -26,6 +27,8 @@ public class App
         Console.Title = "Backup Utilities: Config Editor";
         Console.CursorVisible = false;
         Console.Clear();
+
+        Console.Write("\x1b[?1003h\x1b[?1006h"); // Enable mouse reporting
 
         // Handle screen resizing
         // This doesn't work on Windows, I'm sorry to all 0 of my Windows users
@@ -54,12 +57,55 @@ public class App
             }
             catch { }
 
-            var key = Console.ReadKey(true);
-            window.HandleInput(key);
+            List<ConsoleKeyInfo> keys = [];
+
+            while (Console.KeyAvailable)
+                keys.Add(Console.ReadKey(true));
+
+            for (int i = 0; i < keys.Count; i++)
+            {
+                if (keys[i].Key == ConsoleKey.Escape)
+                {
+                    // Try to parse the mouse event, if it fails, just pass the keys to the window as input
+                    try
+                    {
+                        string sgr = "";
+
+                        // Keep adding to the sgr string until M is encountered.
+                        // If there's no M, this will throw, and handle the input as normal
+                        int j = i;
+                        for (; j < keys.Count; j++)
+                        {
+                            sgr += keys[j].KeyChar;
+
+                            if (keys[j].Key == ConsoleKey.M)
+                                break;
+                        }
+
+                        // The parse will throw if it's not a valid mouse event
+                        window.HandleMouse(Mouse.ParseSGR(sgr));
+
+                        // Jump to the next char outside the mouse input
+                        // (this is here so there's no jump if an exception is thrown)
+                        i = j;
+                        continue;
+                    }
+                    catch { }
+                }
+
+                window.HandleInput(keys[i]);
+            }
         }
 
         resizeRegistration?.Dispose();
         _running = false;
+
+        // Reset the console
+        Console.CursorVisible = true;
+        Console.Clear();
+        Console.ResetColor();
+        Console.Title = "";
+        Console.Write("\x1b[?1003l\x1b[?1006l"); // Disable mouse reporting
     }
 
     public void SetWindow(IWindow window)

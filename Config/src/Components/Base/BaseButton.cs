@@ -1,3 +1,5 @@
+using BackupUtilities.Config.Util;
+
 namespace BackupUtilities.Config.Components.Base;
 
 /// <summary>
@@ -16,6 +18,12 @@ public abstract class BaseButton : BaseInteractive
     public override void HandleInput(ConsoleKeyInfo key)
     {
         if (key.Key is ConsoleKey.Enter or ConsoleKey.Spacebar)
+            Clicked?.Invoke();
+    }
+
+    public override void HandleMouse(Mouse mouse)
+    {
+        if (mouse is { Button: Mouse.MouseButton.Left, State: Mouse.MouseState.Released })
             Clicked?.Invoke();
     }
 }
