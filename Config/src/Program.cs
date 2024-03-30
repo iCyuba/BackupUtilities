@@ -8,12 +8,9 @@ internal static class Program
     {
         App app = new();
 
-        MainWindow test = new(app);
-        app.SetWindow(test);
+        MainWindow main = new(app);
+        app.SetWindow(main);
 
         app.Run();
-
-        // Clear the console before exiting
-        Console.Clear();
     }
 }

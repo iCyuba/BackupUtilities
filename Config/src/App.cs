@@ -23,10 +23,12 @@ public class App
 
         _running = true;
 
+        // Switch to the alternate screen buffer
+        Console.Write("\x1b[?1049h");
+
         Console.OutputEncoding = Encoding.UTF8;
         Console.Title = "Backup Utilities: Config Editor";
         Console.CursorVisible = false;
-        Console.Clear();
 
         Console.Write("\x1b[?1003h\x1b[?1006h"); // Enable mouse reporting
 
@@ -99,10 +101,11 @@ public class App
 
         // Reset the console
         Console.CursorVisible = true;
-        Console.Clear();
-        Console.ResetColor();
         Console.Title = "";
         Console.Write("\x1b[?1003l\x1b[?1006l"); // Disable mouse reporting
+
+        // Switch back to the main screen buffer
+        Console.Write("\x1b[?1049l");
     }
 
     public void SetWindow(IWindow window)
