@@ -50,29 +50,27 @@ public class App
             // this may throw an index out of range exception
             try
             {
-                // If a key is available, don't print.
-                // This results in better drag and drop + paste performance
-                if (!Console.KeyAvailable)
-                    _root.Print();
+                _root.Print();
             }
-            catch { }
+            catch
+            {
+                continue;
+            }
 
             List<ConsoleKeyInfo> keys = [];
 
-            while (Console.KeyAvailable)
-                keys.Add(Console.ReadKey(true));
+            do keys.Add(Console.ReadKey(true));
+            while (Console.KeyAvailable);
 
             for (int i = 0; i < keys.Count; i++)
             {
                 if (keys[i].Key == ConsoleKey.Escape)
-                {
                     // Try to parse the mouse event, if it fails, just pass the keys to the window as input
                     try
                     {
                         string sgr = "";
 
                         // Keep adding to the sgr string until M is encountered.
-                        // If there's no M, this will throw, and handle the input as normal
                         int j = i;
                         for (; j < keys.Count; j++)
                         {
@@ -91,7 +89,6 @@ public class App
                         continue;
                     }
                     catch { }
-                }
 
                 window.HandleInput(keys[i]);
             }
