@@ -14,6 +14,8 @@ public class App
     private readonly Stack<IWindow> _windows = [];
     private bool _running;
 
+    private PosixSignalRegistration? _resize;
+
     public IWindow? Window => _windows.Count > 0 ? _windows.Peek() : null;
 
     public void Run()
@@ -22,6 +24,10 @@ public class App
             throw new InvalidOperationException("App is already running");
 
         _running = true;
+
+        // Handle SIGINT and SIGTERM
+        Console.CancelKeyPress += (_, _) => Exit();
+        using var term = PosixSignalRegistration.Create(PosixSignal.SIGTERM, (_) => Exit(143));
 
         // Switch to the alternate screen buffer
         Console.Write("\x1b[?1049h");
@@ -34,10 +40,8 @@ public class App
 
         // Handle screen resizing
         // This doesn't work on Windows, I'm sorry to all 0 of my Windows users
-
-        PosixSignalRegistration? resizeRegistration = null;
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            resizeRegistration = PosixSignalRegistration.Create(
+            _resize = PosixSignalRegistration.Create(
                 PosixSignal.SIGWINCH,
                 _ =>
                 {
@@ -96,16 +100,7 @@ public class App
             }
         }
 
-        resizeRegistration?.Dispose();
-        _running = false;
-
-        // Reset the console
-        Console.CursorVisible = true;
-        Console.Title = "";
-        Console.Write("\x1b[?1003l\x1b[?1006l"); // Disable mouse reporting
-
-        // Switch back to the main screen buffer
-        Console.Write("\x1b[?1049l");
+        Exit();
     }
 
     public void SetWindow(IWindow window)
@@ -127,5 +122,25 @@ public class App
             _root.SetChildren([current.Node]);
 
         WindowChange?.Invoke();
+    }
+
+    private void Exit()
+    {
+        _running = false;
+        _resize?.Dispose();
+
+        // Reset the console
+        Console.CursorVisible = true;
+        Console.Title = "";
+        Console.Write("\x1b[?1003l\x1b[?1006l"); // Disable mouse reporting
+
+        // Switch back to the main screen buffer
+        Console.Write("\x1b[?1049l");
+    }
+
+    private void Exit(int code)
+    {
+        Exit();
+        Environment.Exit(code);
     }
 }
