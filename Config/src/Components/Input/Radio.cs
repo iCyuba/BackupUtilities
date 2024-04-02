@@ -1,11 +1,12 @@
 using BackupUtilities.Config.Components.Base;
+using BackupUtilities.Config.Components.Generic;
 using BackupUtilities.Config.Components.Views;
 using BackupUtilities.Config.Nodes;
 using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 using BackupUtilities.Shared;
 
-namespace BackupUtilities.Config.Components.Generic;
+namespace BackupUtilities.Config.Components.Input;
 
 /// <summary>
 /// A radio input for selecting a single value from a set of options.

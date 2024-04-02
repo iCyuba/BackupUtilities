@@ -1,4 +1,5 @@
 using BackupUtilities.Config.Components.Generic;
+using BackupUtilities.Config.Components.Input;
 using BackupUtilities.Config.Components.Modals;
 using BackupUtilities.Config.Nodes;
 using BackupUtilities.Config.Yoga;
@@ -55,7 +56,7 @@ public class MainWindow : BaseWindow
         try
         {
             if (Environment.GetCommandLineArgs().Contains("--no-dialog"))
-                throw new Exception();
+                throw new();
 
             // Try opening the native file picker
             var path = Dialog.FileOpen("json");
@@ -82,6 +83,7 @@ public class MainWindow : BaseWindow
                     ShowAlert();
             };
         }
+        return;
 
         // Show an alert if the user cancels the dialog / inputs an invalid path
         void ShowAlert() =>
@@ -104,7 +106,13 @@ public class MainWindow : BaseWindow
     private void Shared()
     {
         // Ask for the url or id
-        InputModal<string> modal = new(new TextBox()) { Title = "Enter id or url", Icon = "" };
+        InputModal<string> modal =
+            new(new TextBox())
+            {
+                Title = "Enter id or url",
+                Icon = "",
+                Value = SharingClient.BASE + "/",
+            };
         OpenModal(modal);
 
         modal.Closed += () =>

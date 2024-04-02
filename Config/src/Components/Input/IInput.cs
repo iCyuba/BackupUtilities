@@ -1,4 +1,4 @@
-namespace BackupUtilities.Config.Components;
+namespace BackupUtilities.Config.Components.Input;
 
 public interface IInput<T> : IComponent
 {

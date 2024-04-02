@@ -4,7 +4,7 @@ using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 using BackupUtilities.Shared;
 
-namespace BackupUtilities.Config.Components.Generic;
+namespace BackupUtilities.Config.Components.Input;
 
 /// <summary>
 /// Input for setting the retention of a backup job.

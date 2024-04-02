@@ -9,12 +9,6 @@ namespace BackupUtilities.Config.Util;
 /// </summary>
 public class Mouse
 {
-    public enum MouseState
-    {
-        Pressed,
-        Released
-    }
-
     public enum MouseButton
     {
         Left,
@@ -28,22 +22,26 @@ public class Mouse
     {
         Shift = 4,
         Meta = 8,
-        Control = 16
+        Control = 16,
+        Motion = 32,
+        Scroll = 64 // Mouse 1 -> Up, Mouse 2 -> Down
     }
 
-    public Vector2 Position { get; private set; }
+    public Vector2 Position { get; }
 
-    public MouseButton Button { get; private set; }
-    public MouseModifiers Modifiers { get; private set; }
+    public MouseButton Button { get; }
+    public MouseModifiers Modifiers { get; }
 
-    public MouseState State { get; private set; }
+    public bool Released { get; }
+    public bool Scroll => Modifiers.HasFlag(MouseModifiers.Scroll);
+    public bool Motion => Modifiers.HasFlag(MouseModifiers.Motion);
 
-    private Mouse(Vector2 position, MouseButton button, MouseModifiers modifiers, MouseState state)
+    private Mouse(Vector2 position, MouseButton button, MouseModifiers modifiers, bool released)
     {
         Position = position;
         Button = button;
         Modifiers = modifiers;
-        State = state;
+        Released = released;
     }
 
     /// <summary>
@@ -55,7 +53,7 @@ public class Mouse
         if (!sgr.StartsWith("\x1b[<") || !sgr.ToLowerInvariant().EndsWith('m'))
             throw new ArgumentException("Invalid SGR format");
 
-        var state = sgr[^1] == 'm' ? MouseState.Released : MouseState.Pressed;
+        bool released = sgr[^1] == 'm';
 
         string[] parts = sgr[3..^1].Split(';');
 
@@ -63,12 +61,12 @@ public class Mouse
             throw new ArgumentException("Invalid SGR format");
 
         int value = int.Parse(parts[0]);
-        var button = (MouseButton)(value & 0b111);
-        var modifier = (MouseModifiers)(value & 0b111000);
+        var button = (MouseButton)(value & 0b11);
+        var modifier = (MouseModifiers)(value & 0b11111100);
 
         int x = int.Parse(parts[1]);
         int y = int.Parse(parts[2]);
 
-        return new(new(x, y), button, modifier, state);
+        return new(new(x, y), button, modifier, released);
     }
 }

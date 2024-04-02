@@ -23,7 +23,7 @@ public abstract class BaseButton : BaseInteractive
 
     public override void HandleMouse(Mouse mouse)
     {
-        if (mouse is { Button: Mouse.MouseButton.Left, State: Mouse.MouseState.Released })
+        if (mouse is { Button: Mouse.MouseButton.Left, Released: true })
             Clicked?.Invoke();
     }
 }

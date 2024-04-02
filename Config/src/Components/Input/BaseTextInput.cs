@@ -1,8 +1,9 @@
+using BackupUtilities.Config.Components.Base;
 using BackupUtilities.Config.Nodes;
 using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
-namespace BackupUtilities.Config.Components.Base;
+namespace BackupUtilities.Config.Components.Input;
 
 /// <summary>
 /// Base class for text based input components.

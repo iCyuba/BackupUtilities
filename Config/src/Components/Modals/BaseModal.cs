@@ -5,7 +5,7 @@ using BackupUtilities.Config.Nodes;
 using BackupUtilities.Config.Util;
 using BackupUtilities.Config.Yoga;
 
-namespace BackupUtilities.Config.Components;
+namespace BackupUtilities.Config.Components.Modals;
 
 /// <summary>
 /// Base component for modals

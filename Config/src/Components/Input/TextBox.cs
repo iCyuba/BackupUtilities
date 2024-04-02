@@ -1,6 +1,4 @@
-using BackupUtilities.Config.Components.Base;
-
-namespace BackupUtilities.Config.Components.Generic;
+namespace BackupUtilities.Config.Components.Input;
 
 /// <summary>
 /// Text input box.
