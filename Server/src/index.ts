@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { showRoutes } from "hono/dev";
 import { logger } from "hono/logger";
 import { validator } from "hono/validator";
@@ -23,6 +24,10 @@ const app = new Hono()
 
     .post(
         "/",
+
+        /** Limit the request body size to 50kb */
+        bodyLimit({ maxSize: 50_000 }),
+
         /** Validate the request body */
         validator("json", (value, c) => {
             if (!validate(value))
@@ -39,14 +44,6 @@ const app = new Hono()
 
         /** Insert the data into the database */
         async (c) => {
-            const buffer = await c.req.arrayBuffer();
-
-            // Make sure the body is under 50kb
-            if (buffer.byteLength > 50_000)
-                return new Response("Request body is too large", {
-                    status: 413,
-                });
-
             const id = nanoid(5);
             await collection.insertOne({
                 _id: id,
